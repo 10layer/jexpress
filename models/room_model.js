@@ -23,6 +23,8 @@ var RoomSchema = new Schema({
 	unavailable_reason: String,
 	display_device_id: String,
 	external_ical: String,
+	zar_cost: Number,
+	market_pax: Number,
 	_deleted: { type: Boolean, default: false, index: true }
 }, {
 	timestamps: true
