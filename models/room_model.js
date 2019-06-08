@@ -30,6 +30,7 @@ var RoomSchema = new Schema({
 	timestamps: true
 });
 
+
 RoomSchema.set("_perms", {
 	admin: "crud",
 	user: "r"
