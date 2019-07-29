@@ -17,6 +17,8 @@ var LeadSchema   = new Schema({
 	mobile: String,
 	date_created: { type: Date, default: Date.now, index: true },
 	source: String,
+	source_info: String,
+	how_did_you_find_out_about_us: String,
 	url: String,
 	type: String,
 	intercom_id: String,
