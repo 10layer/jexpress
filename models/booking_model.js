@@ -73,7 +73,7 @@ function collision_detection(appointment, appointments) {
 	return false;
 }
 
-var getBookings = params => {
+const getBookings = params => {
 	var Booking = mongoose.model("Booking", BookingSchema);
 	return new Promise((resolve, reject) => {
 		Booking.find(params, (err, result) => {
@@ -84,7 +84,7 @@ var getBookings = params => {
 	});
 };
 
-var getLedger = params => {
+const getLedger = params => {
 	return new Promise((resolve, reject) => {
 		Ledger.findOne(params, (err, result) => {
 			if (err)
@@ -94,7 +94,7 @@ var getLedger = params => {
 	});
 };
 
-var getRoom = params => {
+const getRoom = params => {
 	return new Promise((resolve, reject) => {
 		Room.findOne(params, (err, result) => {
 			if (err)
@@ -104,7 +104,7 @@ var getRoom = params => {
 	});
 };
 
-var postLedger = params => {
+const postLedger = params => {
 	var ledger = Ledger(params);
 	return new Promise((resolve, reject) => {
 		ledger.save(function(err, result) {
@@ -183,7 +183,7 @@ BookingSchema.pre("save", async function(f, item) {
 			__user: transaction.__user
 		});
 	} catch(err) {
-		return new Error(err);
+		return Promise.reject(err);
 	};
 });
 
