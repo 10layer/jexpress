@@ -5,8 +5,11 @@ var ObjectId = mongoose.Schema.Types.ObjectId;
 var Mixed = mongoose.Schema.Types.Mixed;
 var User = require("./user_model");
 var Organisation = require("./organisation_model");
+var Gateway = require("./gateway_model");
 
-var PayfasttokenSchema   = new Schema({
+var CreditcardtokenSchema   = new Schema({
+	gateway_id: { type: ObjectId, ref: 'Gateway', index: true },
+	is_default: Boolean,
 	token: { type: String, index: true, unique: true },
 	user_id: { type: ObjectId, ref: 'User', index: true },
 	organisation_id: { type: ObjectId, ref: 'Organisation', index: true },
@@ -15,7 +18,7 @@ var PayfasttokenSchema   = new Schema({
 	name_first: String,
 	name_last: String,
 	email: String,
-	payfast_response: Mixed,
+	response: Mixed,
 	date_created: { type: Date, default: Date.now },
 	_owner_id: ObjectId,
 	_deleted: { type: Boolean, default: false, index: true },
@@ -23,10 +26,10 @@ var PayfasttokenSchema   = new Schema({
 	timestamps: true
 });
 
-PayfasttokenSchema.set("_perms", {
+CreditcardtokenSchema.set("_perms", {
 	admin: "crud",
-	owner: "rd",
+	owner: "rud",
 });
 
 
-module.exports = mongoose.model('Payfasttoken', PayfasttokenSchema);
+module.exports = mongoose.model('Creditcardtoken', CreditcardtokenSchema);
