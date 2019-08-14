@@ -1,18 +1,19 @@
-var mongoose     = require('mongoose');
-var Schema       = mongoose.Schema;
+const mongoose     = require('mongoose');
+const Schema       = mongoose.Schema;
 
-var ObjectId = mongoose.Schema.Types.ObjectId;
-var Location = require("./location_model");
-var License = require("./license_model");
-var SpaceType = require("./spacetype_model");
-var Room = require("./room_model");
-var Claylock = require("./claylock_model");
+const ObjectId = mongoose.Schema.Types.ObjectId;
+const SpaceType = require("./spacetype_model");
+const Room = require("./room_model");
+const Claylock = require("./claylock_model");
 
-var SpaceSchema   = new Schema({
+const SpaceSchema   = new Schema({
 	name: String,
 	spacetype_id: { type: ObjectId, ref: 'SpaceType', required: true },
 	room_id: [{ type: ObjectId, ref: 'Room' }],
 	claylock_id: [{ type: ObjectId, ref: 'Claylock' }],
+	total_value: Number,
+	meters_squared: Number,
+	seats: Number,
 	_owner_id: ObjectId,
 	_deleted: { type: Boolean, default: false, index: true },
 }, {
@@ -32,16 +33,31 @@ SpaceSchema.set("_perms", {
 	all: "r"
 });
 
-SpaceSchema.virtual("total_value").get(function() {
-	return 0;
-});
-
-SpaceSchema.virtual("meters_squared").get(function() {
-	return 0;
-});
-
-SpaceSchema.virtual("seats").get(function () {
-	return 0;
+SpaceSchema.post("findOne", async function(doc) {
+	const Room = require("./room_model"); // I have no idea why the previous def isn't working
+	try {
+		let rooms = [];
+		if (doc.room_id) {
+			if (Array.isArray(doc.room_id)) {
+				for (let room_id of doc.room_id) {
+					rooms.push(await Room.findOne({ _id: room_id }).populate("product_id", "price"));
+				}
+			} else {
+				rooms.push(await Room.findOne({ _id: doc.room_id }).populate("product_id", "price"));
+			}
+		}
+		doc.total_value = 0;
+		doc.seats = 0;
+		doc.meters_squared = 0;
+		for (room of rooms) {
+			doc.seats += room.capacity;
+			doc.meters_squared += room.meters_squared;
+			doc.total_value += room.product_id.price;
+		}
+	} catch(err) {
+		console.error(err);
+		return Promise.reject(err);
+	}
 });
 
 module.exports = mongoose.model('Space', SpaceSchema);
