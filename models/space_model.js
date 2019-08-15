@@ -52,7 +52,8 @@ SpaceSchema.post("findOne", async function(doc) {
 		for (room of rooms) {
 			doc.seats += room.capacity;
 			doc.meters_squared += room.meters_squared;
-			doc.total_value += room.product_id.price;
+			if (room.product_id)
+				doc.total_value += room.product_id.price;
 		}
 	} catch(err) {
 		console.error(err);
@@ -81,7 +82,8 @@ SpaceSchema.post("find", async function (rows) {
 			for (room of rooms) {
 				doc.seats += room.capacity;
 				doc.meters_squared += room.meters_squared;
-				doc.total_value += room.product_id.price;
+				if (room.product_id)
+					doc.total_value += room.product_id.price;
 			}
 		}
 	} catch (err) {
