@@ -60,4 +60,34 @@ SpaceSchema.post("findOne", async function(doc) {
 	}
 });
 
+SpaceSchema.post("find", async function (rows) {
+	const Room = require("./room_model"); // I have no idea why the previous def isn't working
+	try {
+		const allrooms = await Room.find().populate("product_id", "price");
+		for (doc of rows) {
+			let rooms = [];
+			if (doc.room_id) {
+				if (Array.isArray(doc.room_id)) {
+					for (let room_id of doc.room_id) {
+						rooms.push(allrooms.find(room => room._id + "" === room_id + ""));
+					}
+				} else {
+					rooms.push(allrooms.find(room => room._id + "" === doc.room._id + ""));
+				}
+			}
+			doc.total_value = 0;
+			doc.seats = 0;
+			doc.meters_squared = 0;
+			for (room of rooms) {
+				doc.seats += room.capacity;
+				doc.meters_squared += room.meters_squared;
+				doc.total_value += room.product_id.price;
+			}
+		}
+	} catch (err) {
+		console.error(err);
+		return Promise.reject(err);
+	}
+});
+
 module.exports = mongoose.model('Space', SpaceSchema);
