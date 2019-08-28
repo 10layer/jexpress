@@ -24,7 +24,6 @@ const RoomSchema = new Schema({
 	layout: [{ type: ObjectId, ref: "Layout" }],
 	private: { type: Boolean, default: false },
 	unavailable_reason: String,
-	display_device_id: String,
 	external_ical: String,
 	half_day_discount: Number,
 	full_day_discount: Number,
