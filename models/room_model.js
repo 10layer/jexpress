@@ -23,7 +23,7 @@ const RoomSchema = new Schema({
 	meters_squared: Number,
 	layout: [{ type: ObjectId, ref: "Layout" }],
 	private: { type: Boolean, default: false },
-	unavailable_reason: String, 
+	unavailable_reason: String,
 	external_ical: String,
 	half_day_discount: Number,
 	full_day_discount: Number,
