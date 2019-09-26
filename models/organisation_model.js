@@ -66,6 +66,8 @@ var OrganisationSchema   = new Schema({
 	escalation_date: Date,
 	subscription_locked: { type: Boolean, default: false },
 	summarise_invoice: { type: Boolean, default: false },
+	date_onboarded: Date,
+	date_offboarded: Date,
 	_owner_id: ObjectId,
 	_deleted: { type: Boolean, default: false, index: true },
 	_import_ref: String,
