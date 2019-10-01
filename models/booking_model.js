@@ -154,6 +154,8 @@ BookingSchema.pre("save", async function(f, item) {
 	//Is this free? If so, cool, don't do any more
 	if (!transaction.cost)
 		return;
+	if (transaction._deleted) //Probably a refund...
+		return;
 	try {
 		const ledger = await getLedger({
 			source_type: "booking",
