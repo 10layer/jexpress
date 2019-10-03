@@ -41,7 +41,12 @@ var LeadSchema   = new Schema({
 	referral_amount: Number,
 	heat: { type: String, validate: /hot|mild|cold/, default: "mild" },
 	_deleted: { type: Boolean, default: false, index: true },
-	_owner_id: ObjectId
+	_owner_id: ObjectId,
+	notes: [{
+		note: String,
+		date_created: { type: Date, default: Date.now },
+		user_id: { type: Schema.Types.ObjectId, ref: "User" }
+	}]
 }, {
 	timestamps: true
 });
@@ -54,6 +59,11 @@ LeadSchema.set("_perms", {
 });
 
 LeadSchema.index( { "name": "text", "email": "text", "organisation": "text" } );
+
+// Handle adding to notes array
+LeadSchema.virtual("note").set(function(note) {
+	this.notes.push(note);
+});
 
 LeadSchema.pre("save", async function(next) {
 	try {
