@@ -10,6 +10,7 @@ var LocationSchema = new Schema({
 	city: String,
 	address: String,
 	img: String,
+	website: String,
 	description: String,
 	email: String,
 	bank_account: Number,
