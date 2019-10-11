@@ -12,7 +12,7 @@ var LocationSchema = new Schema({
 	img: String,
 	description: String,
 	email: String,
-	bank_account: Number,
+	bank_account: String,
 	bank_code: String,
 	community_manager_name: String,
 	community_manager_email: String,
