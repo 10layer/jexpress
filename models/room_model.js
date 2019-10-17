@@ -16,6 +16,7 @@ const RoomSchema = new Schema({
 	type: [{ type: String, validate: /meeting|event|office|other|hot_desk|dedicated_desk/, index: true } ],
 	name: String,
 	img: String,
+	description: String,
 	cost: Number,
 	off_peak_cost: Number,
 	description: String,
