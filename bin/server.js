@@ -26,13 +26,13 @@ config.pre_hooks = {
 			return next();
 		if (req.query.filter && req.query.filter.location_id)
 			return next();
-		if (!req.user)
+		if (!res.user)
 			return next();
-		if (req.groups.indexOf("super_user") !== -1)
+		if (res.groups.indexOf("super_user") !== -1)
 			return next();
 		if (!req.query.filter)
 			req.query.filter = {};
-		req.query.filter.location_id = req.user.location_id + "";
+		req.query.filter.location_id = res.user.location_id + "";
 		next();
 	}
 };
