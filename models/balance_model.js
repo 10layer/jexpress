@@ -27,12 +27,12 @@ BalanceSchema.set("_perms", {
 });
 
 BalanceSchema.pre("save", function(next) {
-	var self = this;
 	this._owner_id = this.user_id; // Ensure the owner is always the user for this model
 	next();
 });
 
-BalanceSchema.plugin(postFind, {
+BalanceSchema.plugin(postFind, { 
+	// We could probably rewrite this with the new Mongoose async post middleware
 	find: function(rows, done) {
 		var currencies = {};
 		var wallets = null;
@@ -79,26 +79,19 @@ BalanceSchema.plugin(postFind, {
 	}
 });
 
-BalanceSchema.statics.update_balance = function(user_id, currency_id) {
+BalanceSchema.statics.update_balance = async function(user_id, currency_id) {
 	console.log("Updating balance", user_id, currency_id);
-	var Balance      = require("./balance_model");
-	var new_balance;
-	var cred_type;
-	return Currency.findOne({ _id: currency_id })
-	.then(currency => {
-		cred_type = currency.name.toLowerCase();
-		return Wallet.find({ user_id: user_id, currency_id: currency._id });
-	})
-	.then(wallets => {
-		new_balance = wallets.reduce((sum, b) => ( sum + b.balance ), 0);
-		return Balance.find({ user_id, cred_type });
-	})
-	.then(balance => {
-		return balance[0].update({ balance: new_balance });
-	})
-	.catch(err => {
+	try {
+		const currency = await Currency.findOne({ _id: currency_id });
+		const cred_type = currency.name.toLowerCase();
+		const wallets = await Wallet.find({ user_id: user_id, currency_id: currency._id });
+		const new_balance = wallets.reduce((sum, b) => ( sum + b.balance ), 0);
+		const balance = await Balance.find({ user_id, cred_type });
+		return await balance[0].update({ balance: new_balance });
+	} catch(err) {
 		console.error(err);
-	});
+		return "An error occured updating balance";
+	}
 };
 
 BalanceSchema.statics.get_user_balances = function(opts) {
@@ -189,4 +182,5 @@ BalanceSchema.statics.get_user_balances = function(opts) {
 	})
 }
 
-module.exports = mongoose.model('Balance', BalanceSchema);
+const Balance = mongoose.model('Balance', BalanceSchema)
+module.exports = Balance;
