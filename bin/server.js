@@ -20,19 +20,6 @@ var trimuser = function(user) {
 
 config.pre_hooks = {
 	get: (req, res, next) => {
-		if (!req.Model.schema.paths.location_id)
-			return next();
-		if (req.query.location_override)
-			return next();
-		if (req.query.filter && req.query.filter.location_id)
-			return next();
-		if (!res.user)
-			return next();
-		if (res.groups.indexOf("super_user") !== -1)
-			return next();
-		if (!req.query.filter)
-			req.query.filter = {};
-		req.query.filter.location_id = res.user.location_id + "";
 		next();
 	}
 };
