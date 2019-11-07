@@ -6,7 +6,6 @@ const Mixed = mongoose.Schema.Types.Mixed;
 const Opportunity = require("./opportunity_model");
 const User = require("./user_model");
 const Track = require("./track_model");
-const Task = require("./task_model");
 const Location = require('./location_model');
 const moment = require("moment");
 const async = require("async");
@@ -69,7 +68,6 @@ var findDueDate = (task) => {
 		return Promise.resolve(task.date_created);
 	if (task.completed)
 		return Promise.resolve(task.date_completed);
-	let Task = require("./task_model");
 	let opportunity_id = (task.opportunity_id) ? task.opportunity_id._id : task.opportunity_id;
 	return Task.find({ opportunity_id })
 	.then(tasks => {
@@ -78,7 +76,6 @@ var findDueDate = (task) => {
 		var nextTask = tasks.find(t => "" + t._id === "" + due_after_task)
 		var count = 0;
 		while(nextTask) {
-			console.log("while");
 			queue.unshift(nextTask);
 			nextTask = tasks.find(t => "" + t._id === "" + nextTask.due_after_task)
 			count++;
@@ -88,10 +85,10 @@ var findDueDate = (task) => {
 			}
 		}
 		for (var x = 0; x < queue.length - 1; x++) {
-			if (queue[x + 1].absolute_due_date) {
-				queue[x + 1].due_date = queue[x + 1].absolute_due_date;
-			} else if (queue[x + 1].completed) {
+			if (queue[x + 1].completed) {
 				queue[x + 1].due_date = queue[x + 1].date_completed;
+			} else if (queue[x + 1].absolute_due_date) {
+				queue[x + 1].due_date = queue[x + 1].absolute_due_date;
 			} else {
 				queue[x + 1].due_date = moment(queue[x].due_date).add(queue[x + 1].due_after_days || 0, "days").toDate();
 			}
@@ -139,6 +136,17 @@ TaskSchema.pre("save", function(next) {
 	next();
 });
 
+TaskSchema.post("save", async (task) => {
+	try {
+		const tasks = await Task.find({ due_after_task: task._id });
+		for(let next_task of tasks) {
+			next_task.save();
+		}
+	} catch(err) {
+		console.error(err);
+	}
+});
+
 TaskSchema.post("findOne", async doc => {
 	doc._doc.due_date = await findDueDate(doc);
 });
@@ -153,7 +161,6 @@ TaskSchema.statics.getUnique = function(opts) {
 		var q = {
 			completed: false
 		};
-		var Task = require("./task_model");
 		if (opts.track_id) q["track_id"] = new mongoose.Types.ObjectId(opts.track_id);
 	    if (opts.location_id) q["location_id"] = new mongoose.Types.ObjectId(opts.location_id);
 		if (opts.user_id) q["user_id"] = new mongoose.Types.ObjectId(opts.user_id);
@@ -217,7 +224,10 @@ TaskSchema.statics.getUnique = function(opts) {
 				$sort: {
 					due_date: 1
 				}
-			}
+			},
+			// {
+			// 	$limit: 100
+			// }
 	    ]
 		Task.aggregate(aggregate).exec(function(err, result) {
 			if (err) {
@@ -229,4 +239,5 @@ TaskSchema.statics.getUnique = function(opts) {
 	});
 }
 
-module.exports = mongoose.model('Task', TaskSchema);
+const Task = mongoose.model('Task', TaskSchema);
+module.exports = Task;
