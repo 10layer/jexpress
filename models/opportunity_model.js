@@ -29,7 +29,8 @@ var OpportunitySchema   = new Schema({
 	completed: { type: Boolean, default: false, index: true },
 	date_completed: Date,
 	data: mongoose.Schema.Types.Mixed,
-
+	_deleted: { type: Boolean, default: false, index: true },
+	_owner_id: ObjectId,
 }, {
 	timestamps: true
 });
