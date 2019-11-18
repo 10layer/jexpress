@@ -14,6 +14,7 @@ var diff = require('deep-diff').diff;
 var Log = require("./log_model");
 var messagequeue = require("../libs/messagequeue");
 var Organisation = require('./organisation_model');
+var IndustrySector = require("./industrysector_model");
 
 var OrganisationSchema   = new Schema({
 	name: { type: String, unique: true, index: true },
@@ -38,6 +39,7 @@ var OrganisationSchema   = new Schema({
 	company_registration_number: String,
 	location_id: { type: ObjectId, ref: 'Location' },
 	membership: { type: ObjectId, ref: 'Membership' },
+	industrysector_id: [{ type: ObjectId, ref: 'IndustrySector' }],
 	space_credits_per_month_override: Number,
 	stuff_credits_per_month_override: Number,
 	bandwidth_per_month_override: Number,
