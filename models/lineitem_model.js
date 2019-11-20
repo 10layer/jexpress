@@ -48,6 +48,7 @@ const LineItemSchema = new Schema({
 	xero_id: String,
 	date_start: Date,
 	date_end: Date,
+	order: Number,
 	_owner_id: ObjectId,
 	_deleted: { type: Boolean, default: false, index: true },
 	_version: { type: Number, default: 0 },

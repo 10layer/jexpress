@@ -41,6 +41,7 @@ var SentlineitemSchema   = new Schema({
 	date_start: Date,
 	date_end: Date,
 	type: String,
+	order: Number,
 	_owner_id: ObjectId,
 	_deleted: { type: Boolean, default: false, index: true }
 }, {
