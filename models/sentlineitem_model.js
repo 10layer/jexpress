@@ -1,16 +1,20 @@
-var mongoose     = require('mongoose');
-var Schema       = mongoose.Schema;
+const mongoose     = require('mongoose');
+const Schema       = mongoose.Schema;
 
-var ObjectId = mongoose.Schema.Types.ObjectId;
-var Organisation = require("./organisation_model");
-var Product = require("./product_model");
-var Invoice = require("./invoice_model");
-var Lineitem = require("./lineitem_model");
+const ObjectId = mongoose.Schema.Types.ObjectId;
+const Organisation = require("./organisation_model");
+const LineItem = require("./lineitem_model");
+const Location = require("./location_model");
+const User = require("./user_model");
+const Product = require("./product_model");
+const Invoice = require("./invoice_model");
+const Booking = require("./booking_model");
+const License = require("./license_model");
 
-var SentlineitemSchema   = new Schema({
+const SentlineitemSchema = new Schema({
 	description: String,
 	organisation_id: { type: ObjectId, ref: "Organisation", index: true },
-	lineitem_id: { type: ObjectId, ref: "Lineitem" },
+	lineitem_id: { type: ObjectId, ref: "LineItem" },
 	location_id: { type: ObjectId, ref: "Location", index: true },
 	user_id: { type: ObjectId, ref: "User" },
 	product_id: { type: ObjectId, ref: "Product" },
