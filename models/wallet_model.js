@@ -25,7 +25,9 @@ var WalletSchema   = new Schema({
 });
 
 WalletSchema.set("_perms", {
-	admin: "crud",
+	admin: "r",
+	finance: "crud",
+	setup: "crud",
 	user: "r",
 });
 

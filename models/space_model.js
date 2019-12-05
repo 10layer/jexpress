@@ -27,10 +27,9 @@ const SpaceSchema   = new Schema({
 });
 
 SpaceSchema.set("_perms", {
-	admin: "crud",
-	owner: "r",
-	user: "r",
-	all: "r"
+	admin: "r",
+	setup: "crud",
+	user: "r"
 });
 
 SpaceSchema.post("findOne", async function(doc) {

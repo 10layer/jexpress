@@ -14,7 +14,9 @@ var MailtemplateSchema   = new Schema({
 });
 
 MailtemplateSchema.set("_perms", {
-	admin: "crud",
+	setup: "crud",
+	super_user: "crud",
+	admin: "r",
 	all: "r"
 });
 

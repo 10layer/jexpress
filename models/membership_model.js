@@ -30,8 +30,6 @@ var MembershipSchema   = new Schema({
 
 MembershipSchema.set("_perms", {
 	admin: "r",
-	owner: "r",
-	user: "cru",
 	all: "r",
 	setup: "crud",
 });

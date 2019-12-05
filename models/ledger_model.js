@@ -55,8 +55,9 @@ var LedgerSchema   = new Schema({
 LedgerSchema.index( { "$**": "text" } );
 
 LedgerSchema.set("_perms", {
-	admin: "crud",
+	super_user: "crud",
 	owner: "cru",
+	admin: "cr",
 	user: "cr",
 	all: ""
 });

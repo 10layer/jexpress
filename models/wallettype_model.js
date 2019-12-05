@@ -17,7 +17,8 @@ var WalletTypeSchema   = new Schema({
 });
 
 WalletTypeSchema.set("_perms", {
-	superuser: "crud",
+	setup: "crud",
+	admin: "r",
 	user: "r"
 });
 

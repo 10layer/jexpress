@@ -14,10 +14,9 @@ var SpaceTypeSchema   = new Schema({
 });
 
 SpaceTypeSchema.set("_perms", {
-	admin: "crud",
-	owner: "r",
-	user: "r",
-	all: "r"
+	setup: "crud",
+	admin: "r",
+	user: "r"
 });
 
 SpaceTypeSchema.index( { "$**": "text" } );

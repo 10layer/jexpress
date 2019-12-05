@@ -14,7 +14,7 @@ var SourceSchema   = new Schema({
 });
 
 SourceSchema.set("_perms", {
-	admin: "crud",
-	owner: "cr",
+	setup: "crud",
+	admin: "r",
 	user: ""
 });
