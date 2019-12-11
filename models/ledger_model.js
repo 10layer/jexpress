@@ -56,8 +56,11 @@ LedgerSchema.index( { "$**": "text" } );
 
 LedgerSchema.set("_perms", {
 	super_user: "crud",
+	line_manager: "crud",
+	api: "crud",
 	owner: "cru",
-	admin: "cr",
+	admin: "r",
+	pos: "cr",
 	user: "cr",
 	all: ""
 });
