@@ -6,6 +6,7 @@ var ObjectId = mongoose.Schema.Types.ObjectId;
 var Mixed =  mongoose.Schema.Types.Mixed;
 
 var User = require("./user_model");
+var Usergroup = require("./usergroups_model");
 var Organisation = require("./organisation_model");
 var Partner = require("./partner_model");
 var Source = require("./source_model");
@@ -52,25 +53,35 @@ var LedgerSchema   = new Schema({
 	},
 });
 
-LedgerSchema.index( { "$**": "text" } );
-
 LedgerSchema.set("_perms", {
 	super_user: "crud",
-	line_manager: "crud",
-	api: "crud",
-	owner: "r",
-	admin: "r",
+	line_manager: "cru",
+	api: "cru",
 	pos: "cr",
+	owner: "rud",
+	admin: "r",
+	user: "c"
 });
 
-var getUser = async _id => {
+var getUser = async user_id => {
 	try {
-		let user = await User.findOne({_id});
+		let user = await User.findOne({ _id: user_id });
 		if (!user) throw("Cannot find user");
 		if (user._deleted === true) throw("User is deleted");
 		if (user.status === "inactive") throw("User is inactive");
 		return user;
 	} catch(err) {
+		console.error(err);
+		return Promise.reject(err);
+	}
+};
+
+var getGroups = async user_id => {
+	try {
+		let groups = (await Usergroup.findOne({ user_id })).groups;
+		console.log({ groups });
+		return groups;
+	} catch (err) {
 		console.error(err);
 		return Promise.reject(err);
 	}
@@ -320,24 +331,27 @@ LedgerSchema.pre("save", function(next) {
 });
 
 // Do a bunch of checks
-LedgerSchema.pre("save", function(next) {
+LedgerSchema.pre("save", async function() {
 	var transaction = this;
 	try {
 		// Reserves must be negative
 		if ((transaction.amount > 0) && (transaction.reserve)) {
 			throw("Reserves must be a negative value");
 		}
-		// Only admins can assign Credit
+		const groups = await getGroups(transaction.sender._id);
+		console.log(groups);
+		// Only super-user or api admins can give Credit
+		console.log(transaction.amount);
 		if ((transaction.amount > 0) && (!transaction.sender.admin) && (!transaction.is_transfer)) {
 			throw("Only admins can give credit. Amount must be less than zero.");
+		}
+		// You must belong to super_user, api or setup groups
+		if ((transaction.amount > 0) && ((groups.indexOf("super_user") === -1) && (groups.indexOf("api") === -1) && (groups.indexOf("setup") === -1))) {
+			throw ("No permission to give credit. Amount must be less than zero or user must belong to correct group.");
 		}
 		// Only admins can delete non-reserve
 		if ((transaction._deleted) && (transaction.transaction_type !== "reserve") && (!transaction.sender.admin)) {
 			throw("You are not allowed to reverse this transaction");
-		}
-		// Only admins can assign Credit
-		if ((transaction.amount > 0) && (!transaction.sender.admin) && (!transaction.is_transfer)) {
-			throw("Only admins can give credit. Amount must be less than zero.");
 		}
 		// Only admins can delete non-reserve
 		if ((transaction._deleted) && (transaction.transaction_type !== "reserve") && (!transaction.sender.admin)) {
@@ -346,11 +360,10 @@ LedgerSchema.pre("save", function(next) {
 		if (!transaction._is_reserve_conversion && (String(transaction.user_id) !== String(transaction.sender._id)) && (!transaction.sender.admin) && (!transaction.is_transfer)) {
 			throw("This is not your account");
 		}
-		next();
 	} catch(err) {
 		transaction.invalidate("amount", err);
 		console.error(err);
-		next(new Error(err));
+		return Promise.reject(err);
 	}
 });
 
