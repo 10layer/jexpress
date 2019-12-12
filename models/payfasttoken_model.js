@@ -24,8 +24,9 @@ var PayfasttokenSchema   = new Schema({
 });
 
 PayfasttokenSchema.set("_perms", {
-	admin: "crud",
+	api: "crud",
 	owner: "rd",
+	admin: "r",
 });
 
 

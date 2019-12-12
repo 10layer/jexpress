@@ -45,8 +45,11 @@ var LicenseSchema   = new Schema({
 });
 
 LicenseSchema.set("_perms", {
-	admin: "crud",
-	primary_member: "ru",
+	finance: "crud",
+	line_manager: "crud",
+	"managers": "cr",
+	admin: "r",
+	primary_member: "r",
 	user: "r"
 });
 

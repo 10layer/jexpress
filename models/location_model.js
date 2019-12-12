@@ -43,10 +43,11 @@ var LocationSchema = new Schema({
 });
 
 LocationSchema.set("_perms", {
-	admin: "cru",
+	setup: "crud",
+	super_user: "crud",
+	admin: "r",
 	user: "r",
 	all: "r",
-	setup: "crud",
 });
 
 LocationSchema.plugin(friendly, {

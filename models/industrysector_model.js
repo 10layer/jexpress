@@ -13,9 +13,10 @@ var IndustrySectorSchema   = new Schema({
 });
 
 IndustrySectorSchema.set("_perms", {
-	admin: "crud",
-	user: "cr",
-	all: "cr"
+	setup: "crud",
+	admin: "r",
+	user: "r",
+	all: "r"
 });
 
 

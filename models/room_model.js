@@ -47,7 +47,8 @@ RoomSchema.plugin(friendly, {
 });
 
 RoomSchema.set("_perms", {
-	admin: "crud",
+	setup: "crud",
+	admin: "r",
 	user: "r"
 });
 

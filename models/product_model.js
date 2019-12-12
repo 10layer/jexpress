@@ -11,6 +11,7 @@ var ProductSchema   = new Schema({
 	location_id: { type: ObjectId, ref: 'Location' },
 	producttype_id: { type: ObjectId, ref: 'ProductType' },
 	price: { type: Number, validate: function(v) { return (v > 0); }, required: true },
+	price_customisable: { type: Boolean, default: false },
 	member_discount: { type: Number, default: 0 },
 	topup_size: Number,
 	volume: Number,
@@ -37,9 +38,9 @@ var ProductSchema   = new Schema({
 });
 
 ProductSchema.set("_perms", {
-	admin: "crud",
-	owner: "r",
-	user: "r",
+	setup: "crud",
+	finance: "crud",
+	admin: "r",
 	all: "r"
 });
 

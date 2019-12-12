@@ -14,9 +14,10 @@ var TagSchema   = new Schema({
 TagSchema.index({name: 1, type: 1}, {unique: true});
 
 TagSchema.set("_perms", {
-	admin: "crud",
+	setup: "crud",
+	api: "crud",
 	user: "cr",
-	all: "cr"
+	admin: "cr",
 });
 
 function toLower (v) {

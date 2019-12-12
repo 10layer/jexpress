@@ -18,7 +18,8 @@ var OrganisationAttachmentSchema   = new Schema({
 });
 
 OrganisationAttachmentSchema.set("_perms", {
-	admin: "crud",
+	admin: "cr",
+	finance: "crud",
 	owner: "r",
 });
 

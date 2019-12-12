@@ -69,7 +69,7 @@ var UserSchema   = new Schema({
 
 UserSchema.set("_perms", {
 	admin: "crud",
-	owner: "cru",
+	owner: "ru",
 	user: "r",
 	member: "r",
 	api: "r"

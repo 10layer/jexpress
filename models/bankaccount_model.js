@@ -33,7 +33,8 @@ var BankaccountSchema   = new Schema({
 });
 
 BankaccountSchema.set("_perms", {
-	admin: "crud",
+	finance: "crud",
+	admin: "r",
 	user: "c",
 	all: ""
 });

@@ -79,8 +79,7 @@ var OrganisationSchema   = new Schema({
 
 OrganisationSchema.set("_perms", {
 	admin: "crud",
-	owner: "crud",
-	user: "cr",
+	owner: "cru",
 	all: "cr"
 });
 

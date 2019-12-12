@@ -20,7 +20,8 @@ var LogSchema   = new Schema({
 });
 
 LogSchema.set("_perms", {
-	admin: "cru",
+	admin: "r",
+	api: "cru",
 	user: "c",
 });
 

@@ -23,9 +23,9 @@ var DiscountSchema   = new Schema({
 });
 
 DiscountSchema.set("_perms", {
-    admin: "r",
     finance: "crud",
-    linemanager: "crud"
+    line_manager: "crud",
+    admin: "r"
 });
 
 module.exports = mongoose.model('Discount', DiscountSchema);

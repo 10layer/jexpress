@@ -17,7 +17,6 @@ XeroOrgAccountSchema.set("_perms", {
 	super_user: "crud",
 	admin: "crud",
 	user: "r",
-	all: ""
 });
 
 module.exports = mongoose.model('XeroOrgAccount', XeroOrgAccountSchema);

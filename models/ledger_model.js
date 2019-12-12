@@ -6,6 +6,7 @@ var ObjectId = mongoose.Schema.Types.ObjectId;
 var Mixed =  mongoose.Schema.Types.Mixed;
 
 var User = require("./user_model");
+var Usergroup = require("./usergroups_model");
 var Organisation = require("./organisation_model");
 var Partner = require("./partner_model");
 var Source = require("./source_model");
@@ -52,23 +53,35 @@ var LedgerSchema   = new Schema({
 	},
 });
 
-LedgerSchema.index( { "$**": "text" } );
-
 LedgerSchema.set("_perms", {
-	admin: "crud",
-	owner: "cru",
-	user: "cr",
-	all: ""
+	super_user: "crud",
+	line_manager: "cru",
+	api: "cru",
+	pos: "cr",
+	owner: "rud",
+	admin: "r",
+	user: "c"
 });
 
-var getUser = async _id => {
+var getUser = async user_id => {
 	try {
-		let user = await User.findOne({_id});
+		let user = await User.findOne({ _id: user_id });
 		if (!user) throw("Cannot find user");
 		if (user._deleted === true) throw("User is deleted");
 		if (user.status === "inactive") throw("User is inactive");
 		return user;
 	} catch(err) {
+		console.error(err);
+		return Promise.reject(err);
+	}
+};
+
+var getGroups = async user_id => {
+	try {
+		let groups = (await Usergroup.findOne({ user_id })).groups;
+		console.log({ groups });
+		return groups;
+	} catch (err) {
 		console.error(err);
 		return Promise.reject(err);
 	}
@@ -318,25 +331,27 @@ LedgerSchema.pre("save", function(next) {
 });
 
 // Do a bunch of checks
-LedgerSchema.pre("save", function(next) {
-	console.log("Do a bunch of checks");
+LedgerSchema.pre("save", async function() {
 	var transaction = this;
 	try {
 		// Reserves must be negative
 		if ((transaction.amount > 0) && (transaction.reserve)) {
 			throw("Reserves must be a negative value");
 		}
-		// Only admins can assign Credit
+		const groups = await getGroups(transaction.sender._id);
+		console.log(groups);
+		// Only super-user or api admins can give Credit
+		console.log(transaction.amount);
 		if ((transaction.amount > 0) && (!transaction.sender.admin) && (!transaction.is_transfer)) {
 			throw("Only admins can give credit. Amount must be less than zero.");
+		}
+		// You must belong to super_user, api or setup groups
+		if ((transaction.amount > 0) && ((groups.indexOf("super_user") === -1) && (groups.indexOf("api") === -1) && (groups.indexOf("setup") === -1))) {
+			throw ("No permission to give credit. Amount must be less than zero or user must belong to correct group.");
 		}
 		// Only admins can delete non-reserve
 		if ((transaction._deleted) && (transaction.transaction_type !== "reserve") && (!transaction.sender.admin)) {
 			throw("You are not allowed to reverse this transaction");
-		}
-		// Only admins can assign Credit
-		if ((transaction.amount > 0) && (!transaction.sender.admin) && (!transaction.is_transfer)) {
-			throw("Only admins can give credit. Amount must be less than zero.");
 		}
 		// Only admins can delete non-reserve
 		if ((transaction._deleted) && (transaction.transaction_type !== "reserve") && (!transaction.sender.admin)) {
@@ -345,11 +360,10 @@ LedgerSchema.pre("save", function(next) {
 		if (!transaction._is_reserve_conversion && (String(transaction.user_id) !== String(transaction.sender._id)) && (!transaction.sender.admin) && (!transaction.is_transfer)) {
 			throw("This is not your account");
 		}
-		next();
 	} catch(err) {
 		transaction.invalidate("amount", err);
 		console.error(err);
-		next(new Error(err));
+		return Promise.reject(err);
 	}
 });
 
@@ -449,47 +463,26 @@ LedgerSchema.pre("save", function(next) {
 	});
 });
 
-LedgerSchema.pre("save", next => { // Assign user
-	this.user = this.__user;
-	console.log(this);
-	next();
-});
-	
-
-LedgerSchema.post("save", function(transaction) { //Keep our running total up to date
+LedgerSchema.post("save", async function(transaction) { //Keep our running total up to date
 	console.log("Post Save");
 	if (transaction._is_reserve_conversion)
 		return;
 	if (!transaction._is_new)
 		return;
 	if (transaction.amount < 0) {
-		var queue = [];
-		transaction.wallet_split.forEach(wallet => {
-			queue.push(cb => {
-				Wallet.findByIdAndUpdate(wallet._id, { $set: { balance: wallet.balance } })
-				.then(result => {
-					cb(null, result);
-				})
-				.catch(err => {
-					console.error(err);
-					cb(err);
-				});
-			});
-		});
-		queue.push(cb => {
-			Balance.update_balance(transaction.user_id, transaction.currency_id)
-			.then(result => {
-				cb(null, result);
-			})
-			.catch(err => {
+		for(wallet of transaction.wallet_split) {
+			try {
+				await Wallet.findByIdAndUpdate(wallet._id, { $set: { balance: wallet.balance } })
+			} catch(err) {
 				console.error(err);
-				cb(err);
-			});
-		})
-		async.series(queue, (err, result) => {
-			if (err)
-				console.error(err);
-		});
+			}
+		}
+		try {
+			await Balance.update_balance(transaction.user_id, transaction.currency_id);
+		} catch(err) {
+			console.error(err);
+			return Promise.reject(err);
+		}
 		return transaction;
 	} else if (transaction.amount > 0) {
 		var query = {};
@@ -498,38 +491,35 @@ LedgerSchema.post("save", function(transaction) { //Keep our running total up to
 		} else {
 			query = { user_id: transaction.user_id, currency_id: transaction.currency_id, personal: true };
 		}
-		return Wallet.findOne(query).exec()
-		.then(wallet => {
+		try {
+			const wallet = await Wallet.findOne(query).exec();
 			if (!wallet)
 				throw("Could not find wallet for user " + transaction.user_id);
 			wallet.balance = wallet.balance + transaction.amount;
-			return wallet.save();
-		})
-		.then(result => {
-			return Balance.update_balance(transaction.user_id, transaction.currency_id);
-		})
-		.then(result => {
+			await wallet.save();
+			await Balance.update_balance(transaction.user_id, transaction.currency_id);
 			return transaction;
-		})
-		.catch(err => {
+		} catch(err) {
 			console.error(err);
-		});
+			return Promise.reject(err);
+		}
 	}
 });
 
 LedgerSchema.post("save", async (transaction) => { //Log
-	console.log(transaction);
+	// console.log(transaction);
 	try {
+		const currency = await Currency.findOne({ _id: transaction.currency_id });
 		const data = {
-			id: transaction._id,
+			id: transaction.user_id,
 			level: 3,
-			title: `Ledger: ${ transaction.transaction_type } ${ transaction.amount } ${ transaction.cred_type } for ${ (await getUser(transaction.user_id)).name }`,
+			title: `Ledger: ${transaction.transaction_type} ${transaction.amount} ${currency.name} ${currency.unit } for ${ (await getUser(transaction.user_id)).name }`,
 			message: transaction.description,
 			data: transaction,
-			user_id: transaction.user_id,
+			user_id: transaction._owner_id,
 			model: "ledger",
 		}
-		console.log({ data });
+		// console.log({ data });
 		const log = new Log(data)
 		await log.save()
 	} catch(err) {
