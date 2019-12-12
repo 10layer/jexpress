@@ -58,11 +58,9 @@ LedgerSchema.set("_perms", {
 	super_user: "crud",
 	line_manager: "crud",
 	api: "crud",
-	owner: "cru",
+	owner: "r",
 	admin: "r",
 	pos: "cr",
-	user: "cr",
-	all: ""
 });
 
 var getUser = async _id => {
@@ -323,7 +321,6 @@ LedgerSchema.pre("save", function(next) {
 
 // Do a bunch of checks
 LedgerSchema.pre("save", function(next) {
-	console.log("Do a bunch of checks");
 	var transaction = this;
 	try {
 		// Reserves must be negative
@@ -453,47 +450,26 @@ LedgerSchema.pre("save", function(next) {
 	});
 });
 
-LedgerSchema.pre("save", next => { // Assign user
-	this.user = this.__user;
-	console.log(this);
-	next();
-});
-	
-
-LedgerSchema.post("save", function(transaction) { //Keep our running total up to date
+LedgerSchema.post("save", async function(transaction) { //Keep our running total up to date
 	console.log("Post Save");
 	if (transaction._is_reserve_conversion)
 		return;
 	if (!transaction._is_new)
 		return;
 	if (transaction.amount < 0) {
-		var queue = [];
-		transaction.wallet_split.forEach(wallet => {
-			queue.push(cb => {
-				Wallet.findByIdAndUpdate(wallet._id, { $set: { balance: wallet.balance } })
-				.then(result => {
-					cb(null, result);
-				})
-				.catch(err => {
-					console.error(err);
-					cb(err);
-				});
-			});
-		});
-		queue.push(cb => {
-			Balance.update_balance(transaction.user_id, transaction.currency_id)
-			.then(result => {
-				cb(null, result);
-			})
-			.catch(err => {
+		for(wallet of transaction.wallet_split) {
+			try {
+				await Wallet.findByIdAndUpdate(wallet._id, { $set: { balance: wallet.balance } })
+			} catch(err) {
 				console.error(err);
-				cb(err);
-			});
-		})
-		async.series(queue, (err, result) => {
-			if (err)
-				console.error(err);
-		});
+			}
+		}
+		try {
+			await Balance.update_balance(transaction.user_id, transaction.currency_id);
+		} catch(err) {
+			console.error(err);
+			return Promise.reject(err);
+		}
 		return transaction;
 	} else if (transaction.amount > 0) {
 		var query = {};
@@ -502,38 +478,35 @@ LedgerSchema.post("save", function(transaction) { //Keep our running total up to
 		} else {
 			query = { user_id: transaction.user_id, currency_id: transaction.currency_id, personal: true };
 		}
-		return Wallet.findOne(query).exec()
-		.then(wallet => {
+		try {
+			const wallet = await Wallet.findOne(query).exec();
 			if (!wallet)
 				throw("Could not find wallet for user " + transaction.user_id);
 			wallet.balance = wallet.balance + transaction.amount;
-			return wallet.save();
-		})
-		.then(result => {
-			return Balance.update_balance(transaction.user_id, transaction.currency_id);
-		})
-		.then(result => {
+			await wallet.save();
+			await Balance.update_balance(transaction.user_id, transaction.currency_id);
 			return transaction;
-		})
-		.catch(err => {
+		} catch(err) {
 			console.error(err);
-		});
+			return Promise.reject(err);
+		}
 	}
 });
 
 LedgerSchema.post("save", async (transaction) => { //Log
-	console.log(transaction);
+	// console.log(transaction);
 	try {
+		const currency = await Currency.findOne({ _id: transaction.currency_id });
 		const data = {
-			id: transaction._id,
+			id: transaction.user_id,
 			level: 3,
-			title: `Ledger: ${ transaction.transaction_type } ${ transaction.amount } ${ transaction.cred_type } for ${ (await getUser(transaction.user_id)).name }`,
+			title: `Ledger: ${transaction.transaction_type} ${transaction.amount} ${currency.name} ${currency.unit } for ${ (await getUser(transaction.user_id)).name }`,
 			message: transaction.description,
 			data: transaction,
-			user_id: transaction.user_id,
+			user_id: transaction._owner_id,
 			model: "ledger",
 		}
-		console.log({ data });
+		// console.log({ data });
 		const log = new Log(data)
 		await log.save()
 	} catch(err) {
