@@ -87,7 +87,7 @@ BalanceSchema.statics.update_balance = async function(user_id, currency_id) {
 		const wallets = await Wallet.find({ user_id: user_id, currency_id: currency._id });
 		const new_balance = wallets.reduce((sum, b) => ( sum + b.balance ), 0);
 		const balance = await Balance.find({ user_id, cred_type });
-		return await balance[0].update({ balance: new_balance });
+		return await balance[0].updateOne({ balance: new_balance });
 	} catch(err) {
 		console.error(err);
 		return "An error occured updating balance";
