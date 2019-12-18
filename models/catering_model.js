@@ -27,7 +27,7 @@ var CateringSchema   = new Schema({
 
 CateringSchema.set("_perms", {
 	manager: "crud",
-	admin: "",
+	admin: "-",
 	owner: "cr",
 	user: ""
 });

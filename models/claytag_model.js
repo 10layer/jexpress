@@ -19,7 +19,7 @@ var ClaytagSchema   = new Schema({
 
 ClaytagSchema.set("_perms", {
 	manager: "crud",
-	admin: ""
+	admin: "-"
 });
 
 module.exports = mongoose.model('Claytag', ClaytagSchema);

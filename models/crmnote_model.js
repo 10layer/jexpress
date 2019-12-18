@@ -19,7 +19,7 @@ var CrmnoteSchema   = new Schema({
 CrmnoteSchema.set("_perms", {
 	finance : "crud",
 	line_manager: "cru",
-	admin: ""
+	admin: "-"
 });
 
 module.exports = mongoose.model('Crmnote', CrmnoteSchema);

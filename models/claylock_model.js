@@ -31,7 +31,7 @@ var ClaylockSchema   = new Schema({
 
 ClaylockSchema.set("_perms", {
 	manager: "crud",
-	admin: ""
+	admin: "-"
 });
 
 module.exports = mongoose.model('Claylock', ClaylockSchema);
