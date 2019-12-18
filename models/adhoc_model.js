@@ -52,8 +52,8 @@ var AdhocSchema   = new Schema({
 });
 
 AdhocSchema.set("_perms", {
-	admin: "crud",
-	owner: "cr",
+	manager: "crud",
+	admin: "r",
 	primary_member: "r",
 	user: "r",
 	all: ""

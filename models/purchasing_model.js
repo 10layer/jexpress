@@ -14,7 +14,8 @@ var PurchasingSchema   = new Schema({
 });
 
 PurchasingSchema.set("_perms", {
-	admin: "cru",
+	manager: "cru",
+	admin: "r",
 	owner: "cr",
 	user: "c",
 });

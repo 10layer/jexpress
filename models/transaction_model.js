@@ -32,7 +32,8 @@ var TransactionSchema   = new Schema({
 });
 
 TransactionSchema.set("_perms", {
-	admin: "crud",
+	manager: "crud",
+	admin: "r",
 	user: "c",
 });
 

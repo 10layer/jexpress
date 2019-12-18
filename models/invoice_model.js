@@ -53,7 +53,8 @@ var InvoiceSchema   = new Schema({
 });
 
 InvoiceSchema.set("_perms", {
-	admin: "crud",
+	manager: "crud",
+	admin: "r",
 	owner: "cru",
 	primary_member: "r",
 	user: "c"

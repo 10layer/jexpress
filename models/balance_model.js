@@ -20,7 +20,8 @@ const BalanceSchema   = new Schema({
 });
 
 BalanceSchema.set("_perms", {
-	admin: "crud",
+	manager: "crud",
+	admin: "r",
 	owner: "cr",
 	user: "r",
 	all: ""

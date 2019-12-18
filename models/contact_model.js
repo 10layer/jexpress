@@ -29,7 +29,8 @@ var ContactSchema   = new Schema({
 });
 
 ContactSchema.set("_perms", {
-	admin: "cru",
+    manager: "cru",
+    admin: ""
 });
 
 ContactSchema.index( { "name": "text", "email": "text", "organisation": "text" } );

@@ -37,7 +37,8 @@ var PendingOrganisationSchema   = new Schema({
 });
 
 PendingOrganisationSchema.set("_perms", {
-	admin: "crud",
+	manager: "crud",
+	admin: "r",
 	owner: "crud",
 	user: "c",
 	all: "c"

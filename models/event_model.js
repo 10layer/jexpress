@@ -43,7 +43,8 @@ var EventSchema   = new Schema({
 });
 
 EventSchema.set("_perms", {
-	admin: "crud",
+	manager: "crud",
+	admin: "c",
 	owner: "cr",
 	user: "r"
 });

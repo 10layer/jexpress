@@ -53,7 +53,8 @@ var QuoteSchema   = new Schema({
 });
 
 QuoteSchema.set("_perms", {
-	admin: "crud"
+	manager: "crud",
+	admin: "r"
 });
 
 module.exports = mongoose.model('Quote', QuoteSchema);

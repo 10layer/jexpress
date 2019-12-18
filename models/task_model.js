@@ -41,7 +41,8 @@ const TaskSchema   = new Schema({
 });
 
 TaskSchema.set("_perms", {
-	admin: "crud",
+	manager: "crud",
+	admin: "r"
 });
 
 TaskSchema.index( { "name": "text" } );

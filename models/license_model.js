@@ -47,7 +47,7 @@ var LicenseSchema   = new Schema({
 LicenseSchema.set("_perms", {
 	finance: "crud",
 	line_manager: "crud",
-	"managers": "cr",
+	managers: "crud",
 	admin: "r",
 	primary_member: "r",
 	user: "r"

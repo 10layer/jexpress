@@ -24,7 +24,8 @@ var PendinguserSchema   = new Schema({
 });
 
 PendinguserSchema.set("_perms", {
-	admin: "crud",
+	manager: "crud",
+	admin: "r",
 	owner: "crd",
 	user: "r",
 	all: "c",

@@ -15,7 +15,8 @@ var TestSchema   = new Schema({
 });
 
 TestSchema.set("_perms", {
-	admin: "crud",
+	manager: "crud",
+	admin: "r",
 	owner: "crud",
 	user: "cr",
 	all: "r"

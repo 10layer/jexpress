@@ -42,7 +42,8 @@ VoucherSchema.pre("save", function(next) {
 });
 
 VoucherSchema.set("_perms", {
-	admin: "crud",
+	manager: "crud",
+	admin: "r",
 	owner: "r",
 	user: "",
 	all: ""

@@ -11,7 +11,8 @@ var LayoutSchema   = new Schema({
 });
 
 LayoutSchema.set("_perms", {
-	admin: "crud",
+	manager: "crud",
+	admin: "r",
 	user: "r",
 	all: "r"
 });

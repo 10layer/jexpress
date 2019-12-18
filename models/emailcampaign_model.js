@@ -16,7 +16,8 @@ var EmailcampaignSchema = new Schema({
 });
 
 EmailcampaignSchema.set("_perms", {
-	admin: "crud",
+	manager: "crud",
+	admin: "r"
 });
 
 module.exports = mongoose.model('Emailcampaign', EmailcampaignSchema);

@@ -36,7 +36,8 @@ var OpportunitySchema   = new Schema({
 });
 
 OpportunitySchema.set("_perms", {
-	admin: "crud",
+	manager: "crud",
+	admin: "r"
 });
 
 OpportunitySchema.index( { "name": "text" } );

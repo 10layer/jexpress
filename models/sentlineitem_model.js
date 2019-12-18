@@ -59,7 +59,8 @@ const SentlineitemSchema = new Schema({
 });
 
 SentlineitemSchema.set("_perms", {
-	admin: "crud",
+	manager: "crud",
+	admin: "r",
 	owner: "cr",
 	primary_member: "r",
 	user: "r",

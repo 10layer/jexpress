@@ -12,7 +12,8 @@ var UserAdminSchema   = new Schema({
 });
 
 UserAdminSchema.set("_perms", {
-	admin: "cru",
+	manager: "cru",
+	admin: "r",
 	owner: "cr",
 	user: "",
 });

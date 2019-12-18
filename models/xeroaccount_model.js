@@ -14,6 +14,7 @@ var XeroAccountSchema   = new Schema({
 
 XeroAccountSchema.set("_perms", {
 	super_user: "crud",
+	finance: "crud",
 	admin: "r",
 	user: "r",
 });

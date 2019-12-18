@@ -23,7 +23,7 @@ var SpecialofferSchema   = new Schema({
 });
 
 SpecialofferSchema.set("_perms", {
-	manager: "crud",
+	manager: "cru",
 	line_manager: "crud",
 	finance: "crud",
 	admin: "r",

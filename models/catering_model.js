@@ -26,9 +26,10 @@ var CateringSchema   = new Schema({
 });
 
 CateringSchema.set("_perms", {
-	admin: "crud",
+	manager: "crud",
 	owner: "cr",
-	user: ""
+	user: "",
+	admin: ""
 });
 
 module.exports = mongoose.model('Catering', CateringSchema);
