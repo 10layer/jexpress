@@ -346,7 +346,7 @@ LedgerSchema.pre("save", async function() {
 			throw("Only admins can give credit. Amount must be less than zero.");
 		}
 		// You must belong to super_user, api or setup groups
-		if ((transaction.amount > 0) && ((groups.indexOf("super_user") === -1) && (groups.indexOf("api") === -1) && (groups.indexOf("setup") === -1))) {
+		if ((transaction.amount > 0) && ((groups.indexOf("super_user") === -1) && (groups.indexOf("api") === -1) && (groups.indexOf("setup") === -1) && (groups.indexOf("finance") === -1))) {
 			throw ("No permission to give credit. Amount must be less than zero or user must belong to correct group.");
 		}
 		// Only admins can delete non-reserve
