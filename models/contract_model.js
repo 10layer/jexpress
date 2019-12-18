@@ -22,11 +22,11 @@ const ContractSchema   = new Schema({
 });
 
 ContractSchema.set("_perms", {
-    manager: "cru",
-    admin: "r",
-    line_manager: "cru",
+    super_user: "crud",
     finance: "cru",
-    super_user: "crud"
+    line_manager: "cru",
+    manager: "cru",
+    admin: "r"
 });
 
 module.exports = mongoose.model('Contract', ContractSchema);

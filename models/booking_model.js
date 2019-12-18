@@ -52,9 +52,9 @@ var BookingSchema   = new Schema({
 
 BookingSchema.set("_perms", {
 	manager: "crud",
+	admin: "",
 	owner: "crud",
-	user: "cr",
-	admin: ""
+	user: "cr"
 });
 
 function collision_detection(appointment, appointments) {

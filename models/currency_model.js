@@ -18,8 +18,7 @@ CurrencySchema.set("_perms", {
 	setup: "crud",
 	admin: "r",
 	owner: "cr",
-	user: "r",
-	admin: ""
+	user: "r"
 });
 
 module.exports = mongoose.model('Currency', CurrencySchema);
