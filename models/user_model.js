@@ -72,7 +72,7 @@ UserSchema.set("_perms", {
 	manager: "cru",
 	admin: "r",
 	owner: "ru",
-	user: "c",
+	user: "r",
 	member: "r",
 	api: "r"
 });

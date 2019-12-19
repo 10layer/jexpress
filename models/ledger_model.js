@@ -60,7 +60,7 @@ LedgerSchema.set("_perms", {
 	manager: "r",
 	admin: "r",
 	owner: "rud",
-	user: "c",
+	user: "cr",
 	pos: "cr",
 	
 });
