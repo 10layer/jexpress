@@ -25,6 +25,7 @@ var DiscountSchema   = new Schema({
 DiscountSchema.set("_perms", {
     finance: "crud",
     line_manager: "crud",
+    manager: "crud",
     admin: "r"
 });
 

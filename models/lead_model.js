@@ -52,10 +52,11 @@ var LeadSchema   = new Schema({
 });
 
 LeadSchema.set("_perms", {
-	admin: "cru",
 	super_user: "crud",
+	manager: "cru",
+	admin: "r",
 	user: "cr",
-	all: "c",
+	all: "c"
 });
 
 LeadSchema.index( { "name": "text", "email": "text", "organisation": "text" } );

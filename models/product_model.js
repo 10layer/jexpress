@@ -40,6 +40,7 @@ var ProductSchema   = new Schema({
 ProductSchema.set("_perms", {
 	setup: "crud",
 	finance: "crud",
+	manager: "r",
 	admin: "r",
 	all: "r"
 });

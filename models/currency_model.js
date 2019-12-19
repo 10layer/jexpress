@@ -16,6 +16,7 @@ var CurrencySchema   = new Schema({
 
 CurrencySchema.set("_perms", {
 	setup: "crud",
+	manager: "r",
 	admin: "r",
 	owner: "cr",
 	user: "r"

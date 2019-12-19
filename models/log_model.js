@@ -20,9 +20,10 @@ var LogSchema   = new Schema({
 });
 
 LogSchema.set("_perms", {
+	manager: "r",
 	admin: "r",
 	api: "cru",
-	user: "c",
+	user: "c"
 });
 
 LogSchema.index( { "$**": "text" } );

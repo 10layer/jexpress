@@ -20,6 +20,8 @@ var InvoiceHolidaySchema = new Schema({
 
 InvoiceHolidaySchema.set("_perms", {
 	finance: "crud",
+	line_manager: "cru",
+	manager: "r",
 	admin: "r",
 	owner: "r",
 	user: ""

@@ -14,6 +14,7 @@ var IndustrySectorSchema   = new Schema({
 
 IndustrySectorSchema.set("_perms", {
 	setup: "crud",
+	manager: "r",
 	admin: "r",
 	user: "r",
 	all: "r"

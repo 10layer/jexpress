@@ -12,7 +12,6 @@ var ConfigSchema   = new Schema({
 
 ConfigSchema.set("_perms", {
 	setup: "crud",
-	admin: "-",
 	all: "r",
 });
 

@@ -21,7 +21,8 @@ var TrackSchema   = new Schema({
 
 TrackSchema.set("_perms", {
 	setup: "crud",
-	admin: "r",
+	manager: "r",
+	admin: "r"
 });
 
 module.exports = mongoose.model('Track', TrackSchema);

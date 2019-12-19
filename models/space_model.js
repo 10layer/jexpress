@@ -27,8 +27,9 @@ const SpaceSchema   = new Schema({
 });
 
 SpaceSchema.set("_perms", {
-	admin: "r",
 	setup: "crud",
+	manager: "r",
+	admin: "r",
 	user: "r"
 });
 

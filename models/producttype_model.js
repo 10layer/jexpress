@@ -16,6 +16,7 @@ var ProductTypeSchema   = new Schema({
 ProductTypeSchema.set("_perms", {
 	setup: "crud",
 	finance: "cru",
+	manager: "r",
 	admin: "r",
 	all: "r"
 });
