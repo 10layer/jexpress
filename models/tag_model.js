@@ -16,8 +16,8 @@ TagSchema.index({name: 1, type: 1}, {unique: true});
 TagSchema.set("_perms", {
 	setup: "crud",
 	api: "crud",
-	user: "cr",
 	admin: "cr",
+	user: "cr"
 });
 
 function toLower (v) {

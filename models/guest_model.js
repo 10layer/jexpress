@@ -22,8 +22,8 @@ var GuestSchema   = new Schema({
 
 GuestSchema.set("_perms", {
 	manager: "crud",
-	user: "cr",
 	admin: "cr",
+	user: "cr",
 });
 
 GuestSchema.index( { "$**": "text" } );

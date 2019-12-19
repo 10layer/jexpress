@@ -69,8 +69,8 @@ const LineItemSchema = new Schema({
 
 LineItemSchema.set("_perms", {
 	finance: "crud",
-	manager: "crud",
 	line_manager: "crud",
+	manager: "crud",
 	admin: "r",
 	owner: "r",
 	primary_member: "r",
