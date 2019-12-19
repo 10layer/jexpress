@@ -15,8 +15,9 @@ var XeroAccountSchema   = new Schema({
 XeroAccountSchema.set("_perms", {
 	super_user: "crud",
 	finance: "crud",
+	manager: "r",
 	admin: "r",
-	user: "r",
+	user: "r"
 });
 
 module.exports = mongoose.model('XeroAccount', XeroAccountSchema);

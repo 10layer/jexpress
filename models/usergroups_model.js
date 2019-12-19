@@ -14,6 +14,7 @@ var UserGroupSchema   = new Schema({
 UserGroupSchema.set("_perms", {
 	setup: "crud",
 	super_user: "crud",
+	manager: "r",
 	admin: "r",
 	user: "r",
 });

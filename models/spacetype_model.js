@@ -15,6 +15,7 @@ var SpaceTypeSchema   = new Schema({
 
 SpaceTypeSchema.set("_perms", {
 	setup: "crud",
+	manager: "r",
 	admin: "r",
 	user: "r"
 });

@@ -25,10 +25,11 @@ var WalletSchema   = new Schema({
 });
 
 WalletSchema.set("_perms", {
-	admin: "r",
-	finance: "crud",
 	setup: "crud",
-	user: "r",
+	finance: "crud",
+	manager: "r",
+	admin: "r",
+	user: "r"
 });
 
 WalletSchema.index({ name: 1, user_id: 1 }, { unique: true });

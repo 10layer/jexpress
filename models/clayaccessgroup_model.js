@@ -16,7 +16,7 @@ var ClayAccessGroupSchema   = new Schema({
 
 ClayAccessGroupSchema.set("_perms", {
 	manager: "crud",
-	admin: "-"
+	admin: "r"
 });
 
 module.exports = mongoose.model('Clayaccessgroup', ClayAccessGroupSchema);

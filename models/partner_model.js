@@ -15,6 +15,7 @@ var PartnerSchema   = new Schema({
 
 PartnerSchema.set("_perms", {
 	setup: "crud",
+	manager: "r",
 	admin: "r",
 	all: "r"
 });

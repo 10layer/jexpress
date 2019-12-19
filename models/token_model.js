@@ -17,8 +17,9 @@ var TokenSchema   = new Schema({
 
 TokenSchema.set("_perms", {
 	api: "crud",
-	owner: "crud",
+	manager: "r",
 	admin: "r",
+	owner: "crud"
 });
 
 module.exports = mongoose.model('Token', TokenSchema);

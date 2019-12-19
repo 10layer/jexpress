@@ -52,7 +52,7 @@ var BookingSchema   = new Schema({
 
 BookingSchema.set("_perms", {
 	manager: "crud",
-	admin: "-",
+	admin: "r",
 	owner: "crud",
 	user: "cr"
 });

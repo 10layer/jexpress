@@ -57,10 +57,12 @@ LedgerSchema.set("_perms", {
 	super_user: "crud",
 	line_manager: "cru",
 	api: "cru",
-	pos: "cr",
-	owner: "rud",
+	manager: "r",
 	admin: "r",
-	user: "c"
+	owner: "rud",
+	user: "c",
+	pos: "cr",
+	
 });
 
 var getUser = async user_id => {
