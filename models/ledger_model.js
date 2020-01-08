@@ -60,7 +60,7 @@ LedgerSchema.set("_perms", {
 	pos: "cr",
 	owner: "rud",
 	admin: "r",
-	user: "c"
+	user: "cr"
 });
 
 var getUser = async user_id => {
