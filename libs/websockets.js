@@ -1,19 +1,25 @@
-var config = require('config');
-var WebSocket = require("ws");
+const config = require('config');
+const Ws = require("ws");
 
-module.exports = (function() {
-	if (!config.websocket) {
-		console.error("Websocket not configured");
-		return;
+class Websocket {
+	constructor() {
+		this.connect();
 	}
-	var ws = new WebSocket(config.websocket);
-	var self = this;
-	self.connected = false;
-	ws.on("open", () => {
-		console.log("Connected to WebSocket " + config.websocket);
-		self.connected = true;
-	});
-	self.emit = (model, action, _id) => {
+	connect() {
+		const self = this;
+		this.connected = false;
+		this.ws = new Ws(config.websocket);
+		this.ws.on("open", () => {
+			console.log("Connected to WebSocket " + config.websocket);
+			self.connected = true;
+		});
+		this.ws.on("close", () => {
+			self.connected = false;
+			console.log("Websocket closed");
+			self.connect();
+		});
+	}
+	emit(model, action, _id) {
 		var data = {
 			type: "broadcast",
 			action,
@@ -21,8 +27,9 @@ module.exports = (function() {
 			_id,
 			room: model + "s"
 		};
-		ws.send(JSON.stringify(data));
-	};
+		this.ws.send(JSON.stringify(data));
+	}
+}
 
-	return this;
-});
+
+module.exports = Websocket;
