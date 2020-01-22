@@ -94,13 +94,18 @@ LineItemSchema.pre("save", async function() {
 		await Discount.find({ lineitem_id: this._id }).deleteMany().exec();
 	}
 	if (!this.discount) return;
+	let description = this.description;
+	if (this.product_id) {
+		let product = await Product.findOne({ _id: this.product_id });
+		description = product.name;
+	}
 	const discount = new Discount({
 		discount: this.discount,
 		lineitem_id: this._id,
 		organisation_id: this.organisation_id,
 		date_start: this.discount_date_start,
 		date_end: this.discount_date_end,
-		description: this.description,
+		description,
 		_owner_id: this._owner_id
 	});
 	await discount.save();

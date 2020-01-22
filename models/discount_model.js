@@ -4,6 +4,7 @@ var ObjectId     = mongoose.Schema.Types.ObjectId;
 var Organisation = require("./organisation_model");
 var LineItem     = require("./lineitem_model");
 var ProductType     = require("./producttype_model");
+var User = require("./user_model");
 
 var DiscountSchema   = new Schema({
 	date_created: { type: Date, default: Date.now },
@@ -15,7 +16,7 @@ var DiscountSchema   = new Schema({
     date_start: { type: Date, default: Date.now },
     date_end: Date,
     apply_to: [ { type: String, validate: /product|license|booking|all/ } ], // For organisation-wide discounts
-	_owner_id: ObjectId,
+	_owner_id: { type: ObjectId, ref: "User" },
 	_version: { type: Number, default: 0 },
 	_deleted: { type: Boolean, default: false, index: true },
 }, {
