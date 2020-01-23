@@ -122,6 +122,16 @@ OrganisationSchema.plugin(friendly, {
 });
 
 /*
+ * Only administrators or the owner of an organisation are allowed to update that organisation
+ */
+OrganisationSchema.pre("save", async function() {
+	if (this.isNew) return;
+	if (this.sender.admin) return;
+	if (this.user_id + "" === this.sender._id + "") return;
+	throw("Only owners can update an organisation");
+});
+
+/*
  * Log changes
  */
 OrganisationSchema.post('validate', function(doc) {
@@ -202,6 +212,10 @@ OrganisationSchema.post('save', function(doc) {
 	var self = this;
 	if (doc._isNew)
 		onboard(doc._id, self.__user);
+});
+
+OrganisationSchema.virtual("__user").set(function (user) {
+	this.sender = user;
 });
 
 module.exports = mongoose.model('Organisation', OrganisationSchema);
