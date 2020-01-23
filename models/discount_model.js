@@ -13,8 +13,8 @@ var DiscountSchema   = new Schema({
     organisation_id: { type: ObjectId, ref: "Organisation" },
     producttype_id: { type: ObjectId, ref: "ProductType", default: null, index: true },
     lineitem_id: { type: ObjectId, ref: "LineItem" }, // If left blank, apply to entire organisation
-    date_start: { type: Date, default: Date.now },
-    date_end: Date,
+    date_start: { type: Date, default: Date.now, max: '9999-12-31', min: '1800-01-01' },
+    date_end: { type: Date, max: '9999-12-31', min: '1800-01-01' },
     apply_to: [ { type: String, validate: /product|license|booking|all/ } ], // For organisation-wide discounts
 	_owner_id: { type: ObjectId, ref: "User" },
 	_version: { type: Number, default: 0 },
