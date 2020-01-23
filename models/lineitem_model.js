@@ -189,7 +189,7 @@ LineItemSchema.pre("save", function(next) {
 			lineitem._is_new = false;
 			if (result.price !== lineitem.price) {
 				lineitem.price_customised = true;
-				lineitem.price_customised_user_id = lineitem.__user._id;
+				lineitem.price_customised_user_id = lineitem.sender._id;
 				lineitem.price_customised_date = new Date();
 			}
 			next();
@@ -200,7 +200,7 @@ LineItemSchema.pre("save", function(next) {
 				.then(product => {
 					if (product.price !== lineitem.price) {
 						lineitem.price_customised = true;
-						lineitem.price_customised_user_id = lineitem.__user._id;
+						lineitem.price_customised_user_id = lineitem.sender._id;
 						lineitem.price_customised_date = new Date();
 					}
 					next();
@@ -220,7 +220,7 @@ LineItemSchema.pre("save", function(next) {
 					}
 					if (price !== lineitem.price) {
 						lineitem.price_customised = true;
-						lineitem.price_customised_user_id = lineitem.__user._id;
+						lineitem.price_customised_user_id = lineitem.sender._id;
 						lineitem.price_customised_date = new Date();
 					}
 					next();
