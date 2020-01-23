@@ -106,7 +106,7 @@ LineItemSchema.pre("save", async function() {
 		date_start: this.discount_date_start,
 		date_end: this.discount_date_end,
 		description,
-		_owner_id: this._owner_id
+		_owner_id: this.sender._id
 	});
 	await discount.save();
 });
@@ -236,6 +236,10 @@ LineItemSchema.pre("save", function(next) {
 		console.error(err);
 		next(err);
 	});
+});
+
+LineItemSchema.virtual("__user").set(function (user) {
+	this.sender = user;
 });
 
 module.exports = mongoose.model("LineItem", LineItemSchema);
