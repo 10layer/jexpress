@@ -27,11 +27,6 @@ const TaskSchema   = new Schema({
 	date_completed: Date,
 	completed: { type: Boolean, default: false, index: true },
 	abandoned: { type: Boolean, default: false, index: true },
-	notes: [{
-		note: String,
-		date_created: { type: Date, default: Date.now },
-		user_id: { type: ObjectId, ref: "User" }
-	}],
 	data: { type: Mixed },
 	date_created: { type: Date, default: Date.now },
 	due_date: { type: Date },
