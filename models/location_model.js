@@ -28,6 +28,7 @@ var LocationSchema = new Schema({
 	xero_tax_type: String,
 	xero_tracking_name: String,
 	xero_branding_theme: String,
+	xero_tenant_id: String,
 	clay_id: String,
 	nas_ip: String,
 	operator: String,
