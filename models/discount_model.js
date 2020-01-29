@@ -1,12 +1,14 @@
-var mongoose     = require('mongoose');
-var Schema       = mongoose.Schema;
-var ObjectId     = mongoose.Schema.Types.ObjectId;
-var Organisation = require("./organisation_model");
-var LineItem     = require("./lineitem_model");
-var ProductType     = require("./producttype_model");
-var User = require("./user_model");
+const mongoose     = require('mongoose');
+const Schema       = mongoose.Schema;
+const ObjectId     = mongoose.Schema.Types.ObjectId;
+const Organisation = require("./organisation_model");
+const LineItem     = require("./lineitem_model");
+const ProductType  = require("./producttype_model");
+const User         = require("./user_model");
+const diff         = require('deep-diff').diff;
+const Log          = require("./log_model");
 
-var DiscountSchema   = new Schema({
+const DiscountSchema   = new Schema({
 	date_created: { type: Date, default: Date.now },
     discount: { type: Number, default: 0 },
     description: String,
@@ -27,6 +29,34 @@ DiscountSchema.set("_perms", {
     finance: "crud",
     line_manager: "crud",
     admin: "r"
+});
+
+/*
+ * Log changes
+ */
+DiscountSchema.post('validate', async function(doc) {
+    const self = this;
+    try {
+        const organisation = await Organisation.findOne({ _id: doc.organisation_id });
+        let message = `${doc.discount}% discount created for ${organisation.name}`;
+        console.log(self.sender);
+        log = new Log({
+            id: doc.organisation_id,
+            model: "organisation",
+            level: 3,
+            user_id: doc._owner_id,
+            title: `Discount created`,
+            message,
+            code: "discount-create",
+            data: doc,
+        }).save();
+    } catch(err) {
+        console.error(err);
+    }
+});
+
+DiscountSchema.virtual("__user").set(function (user) {
+    this.sender = user;
 });
 
 module.exports = mongoose.model('Discount', DiscountSchema);
