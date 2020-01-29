@@ -10,6 +10,8 @@ const License 		= require("./license_model");
 const Location 		= require("./location_model");
 const User 			= require("./user_model");
 const Discount 		= require("./discount_model");
+const Log 			= require("./log_model");
+const diff 			= require('deep-diff').diff;
 
 const LineItemSchema = new Schema({
 	description: String,
@@ -235,6 +237,53 @@ LineItemSchema.pre("save", function(next) {
 	.catch(err => {
 		console.error(err);
 		next(err);
+	});
+});
+
+var getLineItem = params => {
+	return new Promise((resolve, reject) => {
+		mongoose.model('LineItem', LineItemSchema).findOne(params, (err, result) => {
+			if (err)
+				return reject(err);
+			resolve(result);
+		});
+	});
+};
+
+/*
+ * Log changes
+ */
+LineItemSchema.post('validate', function (doc) {
+	var self = this;
+	var log = null;
+	getLineItem({ _id: doc._id })
+	.then(original => {
+		if (!original) {
+			log = new Log({
+				id: doc.organisation_id,
+				model: "organisation",
+				level: 3,
+				user_id: self.sender._id,
+				title: "Line Item created",
+				message: "Line Item created",
+				code: "lineitem-create",
+				data: doc,
+			}).save();
+		} else {
+			var d = diff(original.toObject(), doc.toObject());
+			if (d) {
+				log = new Log({
+					id: doc.organisation_id,
+					model: "organisation",
+					level: 3,
+					user_id: self.sender._id,
+					title: "Line Item changed",
+					message: "Line Item changed",
+					code: "lineitem-change",
+					data: d,
+				}).save();
+			}
+		}
 	});
 });
 
