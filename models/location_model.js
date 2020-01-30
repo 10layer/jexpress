@@ -38,6 +38,7 @@ var LocationSchema = new Schema({
 	proposal_template: String,
 	proposal_addendum: String,
 	proposal_prepend: String,
+	what3words: [ String ],
 	_deleted: { type: Boolean, default: false, index: true }
 }, {
 	timestamps: true
