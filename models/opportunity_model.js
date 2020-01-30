@@ -36,10 +36,10 @@ OpportunitySchema.set("_perms", {
 
 OpportunitySchema.index( { "name": "text" } );
 
-// Handle adding to notes array
-OpportunitySchema.virtual("note").set(function(note) {
-	this.notes.push(note);
-});
+// // Handle adding to notes array
+// OpportunitySchema.virtual("note").set(function(note) {
+// 	this.notes.push(note);
+// });
 
 // Set Completed Date
 OpportunitySchema.pre("save", function(next) {
@@ -79,6 +79,7 @@ OpportunitySchema.pre("save", function(next) {
 			user_id: doc.user_id,
 			track_id: doc.track_id,
 			opportunity_id: doc._id,
+			lead_id: doc.lead_id,
 			location_id: doc.location_id,
 			completed: true,
 			date_completed: +new Date()
@@ -89,6 +90,7 @@ OpportunitySchema.pre("save", function(next) {
 		newTasks = tasks.map(task => {
 			return {
 				name: task.name,
+				lead_id: doc.lead_id,
 				category: task.category,
 				due_after_days: task.due_after_days,
 				user_id: doc.user_id,

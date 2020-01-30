@@ -4,6 +4,7 @@ const Schema       = mongoose.Schema;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const Mixed = mongoose.Schema.Types.Mixed;
 const Opportunity = require("./opportunity_model");
+const Lead = require("./lead_model");
 const User = require("./user_model");
 const Track = require("./track_model");
 const Location = require('./location_model');
@@ -20,6 +21,7 @@ const TaskSchema   = new Schema({
 	absolute_due_date: Date,
 	original_due_date: Date,
 	user_id: { type: ObjectId, ref: "User", index: true, required: true },
+	lead_id: { type: ObjectId, ref: "Lead", index: true, required: true },
 	opportunity_id: { type: ObjectId, ref: "Opportunity", index: true, required: true },
 	location_id: { type: ObjectId, index: true, ref: "Location" },
 	track_id: { type: ObjectId, ref: "Track", index: true },
@@ -93,9 +95,9 @@ var findDueDate = (task) => {
 };
 
 // Handle adding to notes array
-TaskSchema.virtual("note").set(function(note) {
-	this.notes.push(note);
-});
+// TaskSchema.virtual("note").set(function(note) {
+// 	this.notes.push(note);
+// });
 
 // Set wasNew
 TaskSchema.pre("save", function(next) {
