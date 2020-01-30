@@ -55,11 +55,6 @@ LeadSchema.set("_perms", {
 
 LeadSchema.index( { "name": "text", "email": "text", "organisation": "text" } );
 
-// Handle adding to notes array
-// LeadSchema.virtual("note").set(function(note) {
-// 	this.notes.push(note);
-// });
-
 LeadSchema.pre("save", async function(next) {
 	try {
 		if (!this.isNew) // Is an edit

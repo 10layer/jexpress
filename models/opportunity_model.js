@@ -36,11 +36,6 @@ OpportunitySchema.set("_perms", {
 
 OpportunitySchema.index( { "name": "text" } );
 
-// // Handle adding to notes array
-// OpportunitySchema.virtual("note").set(function(note) {
-// 	this.notes.push(note);
-// });
-
 // Set Completed Date
 OpportunitySchema.pre("save", function(next) {
 	var self = this;

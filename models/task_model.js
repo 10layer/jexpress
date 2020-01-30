@@ -94,11 +94,6 @@ var findDueDate = (task) => {
 	})
 };
 
-// Handle adding to notes array
-// TaskSchema.virtual("note").set(function(note) {
-// 	this.notes.push(note);
-// });
-
 // Set wasNew
 TaskSchema.pre("save", function(next) {
 	var self = this;
