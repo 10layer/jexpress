@@ -20,6 +20,31 @@ var trimuser = function(user) {
 
 config.pre_hooks = {
 	get: (req, res, next) => {
+		if (res.user && res.user.status && res.user.status !== "active") {
+			res.send(401, { status: "error", error: "Unauthorized", message: "User is not active" });
+			return;
+		}
+		next();
+	},
+	put: (req, res, next) => {
+		if (res.user && res.user.status && res.user.status !== "active") {
+			res.send(401, { status: "error", error: "Unauthorized", message: "User is not active" });
+			return;
+		}
+		next();
+	},
+	post: (req, res, next) => {
+		if (res.user && res.user.status && res.user.status !== "active") {
+			res.send(401, { status: "error", error: "Unauthorized", message: "User is not active" });
+			return;
+		}
+		next();
+	},
+	delete: (req, res, next) => {
+		if (req.user && res.user.status && res.user.status !== "active") {
+			res.send(401, { status: "error", error: "Unauthorized", message: "User is not active" });
+			return;
+		}
 		next();
 	}
 };
