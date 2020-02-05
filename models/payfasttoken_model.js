@@ -27,6 +27,7 @@ PayfasttokenSchema.set("_perms", {
 	api: "crud",
 	owner: "rd",
 	admin: "r",
+	all: "c",
 });
 
 
