@@ -74,6 +74,7 @@ let mongoOptions = Object.assign(config.mongo.options, {
 	promiseLibrary: global.Promise,
 	useNewUrlParser: true,
 	useCreateIndex: true,
+	"poolsize": config.mongo.poolsize || 10
 });
 
 mongoose.connect(`mongodb://${ config.mongo.server }/${ config.mongo.db }`, mongoOptions);
