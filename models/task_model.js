@@ -21,7 +21,6 @@ const TaskSchema   = new Schema({
 	absolute_due_date: Date,
 	original_due_date: Date,
 	user_id: { type: ObjectId, ref: "User", index: true, required: true },
-	lead_id: { type: ObjectId, ref: "Lead", index: true, required: true },
 	opportunity_id: { type: ObjectId, ref: "Opportunity", index: true, required: true },
 	location_id: { type: ObjectId, index: true, ref: "Location" },
 	track_id: { type: ObjectId, ref: "Track", index: true },
@@ -127,6 +126,15 @@ TaskSchema.pre("save", function(next) {
 		self.date_completed = new Date();
 	next();
 });
+
+TaskSchema.post("findOne", async function(doc) {
+	try {
+		let opportunity = await Opportunity.findById(doc.opportunity_id);
+		if (opportunity) doc._doc.lead_id = opportunity.lead_id;
+	} catch(err) {
+		console.error(err);
+	}
+})
 
 TaskSchema.post("save", async (task) => {
 	try {
