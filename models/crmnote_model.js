@@ -7,6 +7,7 @@ var Tag = require("./tag_model");
 
 var CrmnoteSchema   = new Schema({
 	organisation_id: { type: ObjectId, index: true },
+	lead_id: { type: ObjectId, index: true },
 	id: { type: ObjectId, index: true },
 	note: String,
 	date_created: { index: true, type: Date, default: Date.now },

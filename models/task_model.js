@@ -4,6 +4,7 @@ const Schema       = mongoose.Schema;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const Mixed = mongoose.Schema.Types.Mixed;
 const Opportunity = require("./opportunity_model");
+const Lead = require("./lead_model");
 const User = require("./user_model");
 const Track = require("./track_model");
 const Location = require('./location_model');
@@ -27,11 +28,6 @@ const TaskSchema   = new Schema({
 	date_completed: Date,
 	completed: { type: Boolean, default: false, index: true },
 	abandoned: { type: Boolean, default: false, index: true },
-	notes: [{
-		note: String,
-		date_created: { type: Date, default: Date.now },
-		user_id: { type: ObjectId, ref: "User" }
-	}],
 	data: { type: Mixed },
 	date_created: { type: Date, default: Date.now },
 	due_date: { type: Date },
@@ -97,11 +93,6 @@ var findDueDate = (task) => {
 	})
 };
 
-// Handle adding to notes array
-TaskSchema.virtual("note").set(function(note) {
-	this.notes.push(note);
-});
-
 // Set wasNew
 TaskSchema.pre("save", function(next) {
 	var self = this;
@@ -135,6 +126,15 @@ TaskSchema.pre("save", function(next) {
 		self.date_completed = new Date();
 	next();
 });
+
+TaskSchema.post("findOne", async function(doc) {
+	try {
+		let opportunity = await Opportunity.findById(doc.opportunity_id);
+		if (opportunity) doc._doc.lead_id = opportunity.lead_id;
+	} catch(err) {
+		console.error(err);
+	}
+})
 
 TaskSchema.post("save", async (task) => {
 	try {
