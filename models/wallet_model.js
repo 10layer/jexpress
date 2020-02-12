@@ -6,6 +6,8 @@ var ObjectId = mongoose.Schema.Types.ObjectId;
 var Currency = require('./currency_model');
 var User = require("./user_model");
 var Organisation = require("./organisation_model");
+var diff = require('deep-diff').diff;
+var Log = require("./log_model");
 
 var WalletSchema   = new Schema({
 	name: { type: String, required: true, validate: /\S+/, index: true },
@@ -142,5 +144,57 @@ WalletSchema.statics.set_personal = function(_id) {
 		});
 	});
 };
+
+var getWallet = params => {
+	return new Promise((resolve, reject) => {
+		mongoose.model('Wallet', WalletSchema).findOne(params, (err, result) => {
+			if (err)
+				return reject(err);
+			resolve(result);
+		});
+	});
+};
+
+/*
+ * Log changes
+ */
+WalletSchema.post('validate', async function (doc) {
+	const self = this;
+	try {
+		const original = await getWallet({ _id: doc._id });
+		if (!original) {
+			new Log({
+				id: doc._id,
+				model: "wallet",
+				level: 3,
+				user_id: self.sender._id,
+				title: "Wallet created",
+				message: "Wallet created " + doc.name,
+				code: "wallet-create",
+				data: doc,
+			}).save();
+		} else {
+			var d = diff(original.toObject(), doc.toObject());
+			if (d) {
+				new Log({
+					id: doc._id,
+					model: "wallet",
+					level: 3,
+					user_id: self.sender._id,
+					title: "Wallet changed",
+					message: "Wallet changed " + doc.name,
+					code: "wallet-change",
+					data: d,
+				}).save();
+			}
+		}
+	} catch(err) {
+		console.error(err);
+	}
+});
+
+WalletSchema.virtual("__user").set(function (user) {
+	this.sender = user;
+});
 
 module.exports = mongoose.model('Wallet', WalletSchema);
