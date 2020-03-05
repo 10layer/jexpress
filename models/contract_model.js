@@ -17,6 +17,7 @@ const ContractSchema   = new Schema({
     organisation_id: { type: ObjectId, ref: "Organisation", index: true },
     filename: String,
     reference: String,
+    _owner_id: { type: ObjectId, ref: "User" },
 }, {
 	timestamps: true
 });
