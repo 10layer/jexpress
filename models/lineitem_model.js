@@ -50,7 +50,7 @@ const LineItemSchema = new Schema({
 	xero_id: String,
 	date_start: { type: Date, max: '9999-12-31', min: '1800-01-01' },
 	date_end: { type: Date, max: '9999-12-31', min: '1800-01-01' },
-	order: Number,
+	// order: Number,
 	_owner_id: ObjectId,
 	_deleted: { type: Boolean, default: false, index: true },
 	_version: { type: Number, default: 0 },
