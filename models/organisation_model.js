@@ -294,7 +294,6 @@ OrganisationSchema.statics.getFull = async function(opts) {
 		.populate({ path: "license_id", populate: { path: "membership_id" } }).populate("product_id")).map(process_lineitem));
 	const adhoc_lineitems = sortLineitems((await Adhoc.find({ organisation_id: _id, _deleted: false })
 		.populate({ path: "license_id", populate: { path: "membership_id" } }).populate("product_id")).map(process_lineitem));
-	console.log("Lineitem Count:", lineitems.length);
 	return { ...organisation._doc, membership, lineitems, adhoc_lineitems };
 }
 
