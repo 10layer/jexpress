@@ -63,8 +63,9 @@ LedgerSchema.set("_perms", {
 	user: "cr"
 });
 
-var getUser = async user_id => {
+var getUser = async function(user_id) {
 	try {
+		var User = require("./user_model");
 		let user = await User.findOne({ _id: user_id });
 		if (!user) throw("Cannot find user");
 		if (user._deleted === true) throw("User is deleted");
@@ -89,6 +90,7 @@ var getGroups = async user_id => {
 
 var getOrganisation = async _id => {
 	try {
+		var Organisation = require("./organisation_model");
 		let organisation = await Organisation.findOne({_id});
 		if (!organisation) throw("Cannot find organisation");
 		if (organisation._deleted === true) throw("Organisation is deleted");
@@ -282,22 +284,21 @@ LedgerSchema.pre("save", function(next) {
 });
 
 // Set organisation_id and make sure user is active
-LedgerSchema.pre("save", function(next) {
+LedgerSchema.pre("save", async function() {
 	console.log("Set organisation_id and make sure user is active");
 	var transaction = this;
 	if (!transaction.user_id) {
 		transaction.invalidate("user_id", "user_id required");
 		return next(new Error("user_id required"));
 	}
-	getUser(transaction.user_id)
-	.then(result => {
+	try {
+		result = await getUser(transaction.user_id);
 		transaction.organisation_id = result.organisation_id;
-		next();
-	}, err => {
+	} catch(err) {
 		transaction.invalidate("user_id", err);
 		console.error(err);
-		next(new Error(err));
-	});
+		return Promise.reject(err);
+	}
 });
 
 // Make sure organisation is active
