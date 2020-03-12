@@ -251,6 +251,7 @@ function sortLineitems(lineitems) {
 }
 
 const process_lineitem = lineitem => {
+	lineitem = lineitem._doc;
 	if (lineitem.product_id) {
 		lineitem.description = `${lineitem.product_id.name}${(lineitem.comment) ? `\n${lineitem.comment}` : ``}`;
 	}
