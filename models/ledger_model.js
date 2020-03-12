@@ -1,5 +1,4 @@
 var mongoose     = require('mongoose');
-// mongoose.set('debug', true);
 var Schema       = mongoose.Schema;
 
 var ObjectId = mongoose.Schema.Types.ObjectId;
@@ -286,14 +285,14 @@ LedgerSchema.pre("save", function(next) {
 // Set organisation_id and make sure user is active
 LedgerSchema.pre("save", async function() {
 	console.log("Set organisation_id and make sure user is active");
-	var transaction = this;
+	let transaction = this;
 	if (!transaction.user_id) {
 		transaction.invalidate("user_id", "user_id required");
-		return next(new Error("user_id required"));
+		return Promise.reject("user_id required");
 	}
 	try {
-		result = await getUser(transaction.user_id);
-		transaction.organisation_id = result.organisation_id;
+		let user = await getUser(transaction.user_id);
+		transaction.organisation_id = user.organisation_id;
 	} catch(err) {
 		transaction.invalidate("user_id", err);
 		console.error(err);
