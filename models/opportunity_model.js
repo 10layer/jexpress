@@ -125,6 +125,20 @@ OpportunitySchema.pre("save", function(next) {
 	})
 });
 
+//save opportunity_id in lead Model
+OpportunitySchema.post("save", async function(doc) {
+	let lead = await Lead.findOne({ _id: doc.lead_id })
+	if(Array.isArray(lead.opportunity_id)) {
+		if (lead.opportunity_id.indexOf(doc._id) === -1) {
+			lead.opportunity_id.push(doc._id); 
+		}
+	} else {
+		lead.opportunity_id = [doc._id];
+	}
+	await lead.save();
+});
+		
+
 // Pay referral reward
 OpportunitySchema.pre("save", async function(next) {
 	let doc = this;

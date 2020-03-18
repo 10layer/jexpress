@@ -24,6 +24,7 @@ var LeadSchema   = new Schema({
 	intercom_id: String,
 	mailtemplate_id: ObjectId,
 	membership_id: { type: ObjectId, ref: "Membership" },
+	opportunity_id: [{type: ObjectId, ref: "opportunity"}],
 	short_name: String,
 	legal_name: String,
 	accounts_email: String,
