@@ -1,5 +1,7 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
+const ObjectId = mongoose.Schema.Types.ObjectId;
+const Product = require("./product_model");
 
 var friendly = require("mongoose-friendly");
 
@@ -29,6 +31,7 @@ var LocationSchema = new Schema({
 	xero_tracking_name: String,
 	xero_branding_theme: String,
 	xero_tenant_id: String,
+	deposit_product_id: { type: ObjectId, ref: "Product" },
 	clay_id: String,
 	nas_ip: String,
 	operator: String,
