@@ -43,6 +43,7 @@ var LeadSchema   = new Schema({
 	heat: { type: String, validate: /hot|mild|cold/, default: "mild" },
 	_deleted: { type: Boolean, default: false, index: true },
 	_owner_id: ObjectId,
+	archived: { type: Boolean, default: false, index: true },
 }, {
 	timestamps: true
 });
