@@ -77,7 +77,7 @@ let mongoOptions = Object.assign(config.mongo.options, {
 	// "poolsize": config.mongo.poolsize || 10
 });
 
-mongoose.connect(`mongodb://${ config.mongo.server }/${ config.mongo.db }`, mongoOptions);
+mongoose.connect(config.mongo.connection_string, mongoOptions);
 
 var db = mongoose.connection;
 
