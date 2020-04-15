@@ -91,7 +91,7 @@ db.once('open', () => {
 
 var server = new Jxp(config);
 
-server.listen(config.port || 3001, function() {
+server.listen(config.port || process.env.PORT || 3001, function() {
 	console.log('%s listening at %s', "Workspaceman API", server.url);
 });
 
