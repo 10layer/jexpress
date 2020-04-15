@@ -1,7 +1,10 @@
 {
 	"mongo": {
-		"server": "mongo",
-		"db": "jxp"
+		"connection_string": "mongodb://username:password@localhost/openmembers?retryWrites=true&w=majority",
+		"options": {
+			"poolsize": 10,
+			"authSource": "admin"
+		}
 	},
 	"port": "3001",
 	"smtp": {
