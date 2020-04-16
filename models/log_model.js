@@ -15,6 +15,7 @@ var LogSchema   = new Schema({
 	title: String,
 	message: String,
 	data: Mixed,
+	_deleted: { type: Boolean, index: true }
 }, {
 	timestamps: true
 });
