@@ -18,9 +18,9 @@ var InvoiceSchema   = new Schema({
 	user_id: { type: ObjectId, index: true, ref: "User" },
 	location: { type: ObjectId, index: true, ref: "Location" },
 	date: Date,
-	due_date: Date,
+	due_date: { type: Date, index: true },
 	sent: Boolean,
-	status: String,
+	status: { type: String, index: true },
 	sub_total: Number,
 	total: Number,
 	discount: Number,
@@ -46,7 +46,7 @@ var InvoiceSchema   = new Schema({
 	sent_user_id: { type: ObjectId, ref: "User" },
 	sent_date: Date,
 	_owner_id: ObjectId,
-	_deleted: Boolean,
+	_deleted: { type: Boolean, index: true },
 }, {
 	timestamps: true,
     toJSON: { virtuals: true }
