@@ -21,8 +21,9 @@ var FileSchema = new Schema({
 
 FileSchema.set("_perms", {
     setup: "crud",
-    admin: "r",
-    all: "r"
+    admin: "crud",
+    api: "r",
+    all: ""
 });
 
 FileSchema.plugin(friendly, {

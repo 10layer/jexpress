@@ -18,8 +18,9 @@ var PageSchema = new Schema({
 
 PageSchema.set("_perms", {
     setup: "crud",
-    admin: "r",
-    all: "r"
+    admin: "crud",
+    api: "r",
+    all: ""
 });
 
 PageSchema.plugin(friendly, {
