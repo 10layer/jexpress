@@ -31,9 +31,6 @@ const LineItemSchema = new Schema({
 	},
 	price: {
 		type: Number,
-		validate: function(v) {
-			return v >= 0;
-		},
 		required: true
 	},
 	price_customised: { type: Boolean, default: false },
