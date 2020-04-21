@@ -30,9 +30,6 @@ const SentlineitemSchema = new Schema({
 	},
 	price: {
 		type: Number,
-		validate: function(v) {
-			return v >= 0;
-		},
 		required: true
 	},
 	tax_type: String,
