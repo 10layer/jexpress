@@ -31,7 +31,8 @@ const TaskSchema   = new Schema({
 	data: { type: Mixed },
 	date_created: { type: Date, default: Date.now },
 	due_date: { type: Date },
-	_owner_id: ObjectId
+	_owner_id: ObjectId,
+	_deleted: { type: Boolean, index: true }
 }, {
 	timestamps: true
 });
