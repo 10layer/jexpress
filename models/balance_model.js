@@ -41,10 +41,9 @@ BalanceSchema.plugin(postFind, {
 			result.forEach(currency => {
 				currencies[currency.name.toLowerCase()] = currency._id;
 			});
-			return Wallet.find();
+			return Wallet.find({ balance: { $gt: 0 }});
 		})
-		.then(result => {
-			wallets = result.filter(wallet => (wallet.balance));
+		.then(wallets => {
 			rows.forEach(row => {
 				row._doc.balance = 0;
 				if (!currencies[row.cred_type])
