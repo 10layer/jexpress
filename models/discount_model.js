@@ -37,6 +37,7 @@ DiscountSchema.set("_perms", {
 DiscountSchema.post('validate', async function(doc) {
     const self = this;
     try {
+        const Organisation = require("./organisation_model");
         const organisation = await Organisation.findOne({ _id: doc.organisation_id });
         let message = `${doc.discount}% discount created for ${organisation.name}`;
         console.log(self.sender);
