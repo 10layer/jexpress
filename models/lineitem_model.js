@@ -39,14 +39,16 @@ const LineItemSchema = new Schema({
 	price_customised_date: Date,
 	tax_type: String,
 	comment: String,
-	discount: { type: Number, default: 0 }, // DEPRECATED IN FAVOUR OF DISCOUNT TABLE
-	discount_date_start: Date, // DEPRECATED IN FAVOUR OF DISCOUNT TABLE
-	discount_date_end: Date, // DEPRECATED IN FAVOUR OF DISCOUNT TABLE
+	discount: { type: Number, default: 0 },
+	discount_date_start: Date,
+	discount_date_end: Date,
+	discount_description: String,
+	discount_comment: String,
 	date_created: { type: Date, default: Date.now },
 	is_quote: Boolean,
 	xero_id: String,
-	date_start: { type: Date, max: '9999-12-31', min: '1800-01-01' },
-	date_end: { type: Date, max: '9999-12-31', min: '1800-01-01' },
+	date_start: { type: Date, max: '9999-12-31', min: '1800-01-01', index: true },
+	date_end: { type: Date, max: '9999-12-31', min: '1800-01-01', index: true },
 	// order: Number,
 	_owner_id: ObjectId,
 	_deleted: { type: Boolean, default: false, index: true },
@@ -88,25 +90,62 @@ LineItemSchema.virtual("status").get(function() {
 	return "current";
 });
 
-LineItemSchema.pre("save", async function() {
-	if (!this.isNew) {
-		await Discount.find({ lineitem_id: this._id }).deleteMany().exec();
+// Ensure product ID matches location ID
+LineItemSchema.pre("save", async function () {
+	try {
+		if (!this.product_id) return;
+		let product = await Product.findOne({ _id: this.product_id });
+		if (product.location_id + "" !== this.location_id + "") {
+			return Promise.reject("Product location does not match lineitem location");
+		}
+	} catch(err) {
+		return Promise.reject(err);
 	}
-	if (!this.discount) return;
+});
+
+// Discounts
+LineItemSchema.pre("save", async function() {
+	// console.log("Checking discounts");
+	let discount = await Discount.findOne({ lineitem_id: this._id, _deleted: false }).exec();
+	if ((!this.discount) && (discount)) {
+		// Delete existing discount and bail
+		// console.log("No discount found");
+		discount._deleted = true;
+		discount.save();
+		return;
+	}
+	if (!this.discount) {
+		// console.log("No discount set");
+		return; // No discount to set
+	}
 	let description = this.description;
 	if (this.product_id) {
 		let product = await Product.findOne({ _id: this.product_id });
-		description = product.name;
+		description = `PRODUCT - ${ product.name }${ (this.description) ? ` - ${ this.description }` : "" }`;
 	}
-	const discount = new Discount({
-		discount: this.discount,
-		lineitem_id: this._id,
-		organisation_id: this.organisation_id,
-		date_start: this.discount_date_start,
-		date_end: this.discount_date_end,
-		description,
-		_owner_id: this.sender._id
-	});
+	if (discount) {
+		// console.log("Updating discount");
+		discount.discount = this.discount;
+		discount.date_start = this.discount_date_start;
+		discount.date_end = this.discount_date_end;
+		discount.description = description;
+		if (this.discount_comment) 
+			discount.comment = this.discount_comment;
+		console.log(discount);
+	} else {
+		// console.log("Creating discount");
+		discount = new Discount({
+			discount: this.discount,
+			lineitem_id: this._id,
+			license_id: this.license_id,
+			organisation_id: this.organisation_id,
+			date_start: this.discount_date_start,
+			date_end: this.discount_date_end,
+			description,
+			comment: this.discount_comment,
+			_owner_id: this.sender._id
+		});
+	}
 	await discount.save();
 });
 

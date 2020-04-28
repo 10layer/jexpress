@@ -3,20 +3,28 @@ const Schema       = mongoose.Schema;
 const ObjectId     = mongoose.Schema.Types.ObjectId;
 const Organisation = require("./organisation_model");
 const LineItem     = require("./lineitem_model");
+const License = require("./license_model");
 const ProductType  = require("./producttype_model");
 const User         = require("./user_model");
 const diff         = require('deep-diff').diff;
 const Log          = require("./log_model");
 
+const oneYearFromNow = new Date();
+oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+const oneYearAgo = new Date();
+oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
 const DiscountSchema   = new Schema({
 	date_created: { type: Date, default: Date.now },
     discount: { type: Number, default: 0 },
     description: String,
-    organisation_id: { type: ObjectId, ref: "Organisation" },
+    comment: String,
+    organisation_id: { type: ObjectId, ref: "Organisation", index: true },
     producttype_id: { type: ObjectId, ref: "ProductType", default: null, index: true },
     lineitem_id: { type: ObjectId, ref: "LineItem" }, // If left blank, apply to entire organisation
-    date_start: { type: Date, default: Date.now, max: '9999-12-31', min: '1800-01-01' },
-    date_end: { type: Date, max: '9999-12-31', min: '1800-01-01' },
+    license_id: { type: ObjectId, ref: "License" },
+    date_start: { type: Date, default: Date.now, max: '9999-12-31', min: oneYearAgo, required: true, index: true },
+    date_end: { type: Date, max: oneYearFromNow, min: '1800-01-01', required: true, index: true },
     apply_to: [ { type: String, validate: /product|license|booking|all/ } ], // For organisation-wide discounts
 	_owner_id: { type: ObjectId, ref: "User" },
 	_version: { type: Number, default: 0 },
@@ -40,7 +48,6 @@ DiscountSchema.post('validate', async function(doc) {
         const Organisation = require("./organisation_model");
         const organisation = await Organisation.findOne({ _id: doc.organisation_id });
         let message = `${doc.discount}% discount created for ${organisation.name}`;
-        console.log(self.sender);
         log = new Log({
             id: doc.organisation_id,
             model: "organisation",

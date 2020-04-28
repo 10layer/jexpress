@@ -1,19 +1,20 @@
-var mongoose     = require('mongoose');
-var Schema       = mongoose.Schema;
+const mongoose     = require('mongoose');
+const Schema       = mongoose.Schema;
 
-var ObjectId = mongoose.Schema.Types.ObjectId;
-var Organisation = require("./organisation_model");
-var Membership = require("./membership_model");
-var User = require("./user_model");
-var Invoice = require("./invoice_model");
-var Space = require("./space_model");
-var Location = require("./location_model");
-var Claytag = require("./claytag_model");
-var LineItem = require("./lineitem_model");
-var diff = require('deep-diff').diff;
-var Log = require("./log_model");
+const ObjectId = mongoose.Schema.Types.ObjectId;
+const Organisation = require("./organisation_model");
+const Membership = require("./membership_model");
+const Discount = require("./discount_model");
+const User = require("./user_model");
+const Invoice = require("./invoice_model");
+const Space = require("./space_model");
+const Location = require("./location_model");
+const Claytag = require("./claytag_model");
+const LineItem = require("./lineitem_model");
+const diff = require('deep-diff').diff;
+const Log = require("./log_model");
 
-var LicenseSchema   = new Schema({
+const LicenseSchema   = new Schema({
 	organisation_id: { type: ObjectId, ref: 'Organisation', index: true, required: true },
 	membership_id: { type: ObjectId, ref: 'Membership', required: true },
 	xero_account: String,
@@ -32,6 +33,11 @@ var LicenseSchema   = new Schema({
 			return v >= 0;
 		},
 	},
+	discount: { type: Number, default: 0 },
+	discount_date_start: Date,
+	discount_date_end: Date,
+	discount_description: String,
+	discount_comment: String,
 	_owner_id: ObjectId,
 	_deleted: { type: Boolean, default: false, index: true },
 }, {
@@ -51,6 +57,60 @@ LicenseSchema.set("_perms", {
 	admin: "r",
 	primary_member: "r",
 	user: "r"
+});
+
+// Discounts
+LicenseSchema.pre("save", async function () {
+	const LineItem = require("./lineitem_model");
+	const User = require("./user_model");
+	let discount = await Discount.findOne({ license_id: this._id, _deleted: false }).exec();
+	let lineitem = await LineItem.findOne({ license_id: this._id, _deleted: false }).exec();
+	if ((!this.discount) && (discount)) {
+		// Delete existing discount and bail
+		discount._deleted = true;
+		discount.save();
+		return;
+	}
+	if (!this.discount) return; // No discount to set
+	if (discount) {
+		// Update existing discount
+		let description = "LICENSE - No User";
+		if (this.user_id) {
+			const user = await User.findOne({ _id: this.user_id });
+			description = `LICENSE - ${user.name} (${user.email})`;
+		}
+		discount.discount = this.discount;
+		discount.date_start = this.discount_date_start;
+		discount.date_end = this.discount_date_end;
+		discount.description = description;
+		if (discount_comment)
+			discount.comment = this.discount_comment;
+	} else {
+		// Create a new discount
+		let description = "LICENSE - No User";
+		if (this.user_id) {
+			const user = await User.findOne({ _id: this.user_id });
+			description = `LICENSE - ${ user.name } (${ user.email })`;
+		}
+		discount = new Discount({
+			discount: this.discount,
+			license_id: this._id,
+			organisation_id: this.organisation_id,
+			date_start: this.discount_date_start,
+			date_end: this.discount_date_end,
+			comment: this.discount_comment,
+			description,
+			_owner_id: this.sender._id
+		});
+		if (lineitem) {
+			discount.lineitem_id = lineitem._id;
+		}
+	}
+	await discount.save();
+});
+
+LicenseSchema.post("update", async function (doc) {
+	console.log({doc});
 });
 
 /*
@@ -99,6 +159,10 @@ LicenseSchema.virtual("status").get(function() {
 	var date_end = +new Date(this.date_end);
 	if (date_end && date_end < now) return "expired";
 	return "current";
+});
+
+LicenseSchema.virtual("__user").set(function (user) {
+	this.sender = user;
 });
 
 module.exports = mongoose.model('License', LicenseSchema);
