@@ -323,8 +323,79 @@ LineItemSchema.post('validate', function (doc) {
 	});
 });
 
+LineItemSchema.statics.find_bad_lineitems = function(opts) {
+	console.log("Find lineitems that don't match product location");
+	return new Promise((resolve, reject) => {
+		var aggregate = [
+			{
+				$match: {
+					product_id: { $exists: true },
+					location_id: { $exists: true },
+				}
+			},
+			{
+				$lookup: {
+					from: "products",
+					localField: "product_id",
+					foreignField: "_id",
+					as: "product"
+				}
+			},
+			{
+				$unwind: "$product"
+			},
+			{
+				$project: {
+					_id: 1,
+					organisation_id: 1,
+					location_id: 1,
+					product_location_id: "$product.location_id",
+					comment: 1,
+					product_description: "$product.description",
+					sameloc: {
+						$cmp: ["$location_id", "$product.location_id"]
+					},
+					deleted: {
+						$cmp: ["$product._deleted", true]
+					},
+					url: {
+						$concat: ["https://my.workshop17.co.za/admin/edit/organisation/", { "$toString": "$organisation_id" }]
+					}
+				}
+			},
+			{
+				$match: {
+					sameloc: { $ne: 0 },
+					deleted: { $ne: 0 },
+				}
+			},
+			{
+				$project: {
+					_id: 1,
+					url: 1,
+					organisation_id: 1,
+					location_id: 1,
+					product_location_id: 1,
+					comment: 1,
+					description: 1,
+					product_description: 1,
+
+				}
+			}
+		]
+		LineItem.aggregate(aggregate).exec(function (err, result) {
+			if (err) {
+				console.error(err)
+				return reject(err);
+			}
+			return resolve(result);
+		})
+	})
+}
+
 LineItemSchema.virtual("__user").set(function (user) {
 	this.sender = user;
 });
 
-module.exports = mongoose.model("LineItem", LineItemSchema);
+const LineItem = mongoose.model("LineItem", LineItemSchema);
+module.exports = LineItem;
