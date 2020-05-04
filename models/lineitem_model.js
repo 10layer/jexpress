@@ -323,7 +323,7 @@ LineItemSchema.post('validate', function (doc) {
 	});
 });
 
-LineItemSchema.statics.find_bad_lineitems = function(opts) {
+LineItemSchema.statics.find_bad_product_lineitems = function(opts) {
 	console.log("Find lineitems that don't match product location");
 	return new Promise((resolve, reject) => {
 		var aggregate = [
@@ -356,7 +356,7 @@ LineItemSchema.statics.find_bad_lineitems = function(opts) {
 						$cmp: ["$location_id", "$product.location_id"]
 					},
 					deleted: {
-						$cmp: ["$product._deleted", true]
+						$cmp: ["$$ROOT._deleted", true]
 					},
 					url: {
 						$concat: ["https://my.workshop17.co.za/admin/edit/organisation/", { "$toString": "$organisation_id" }]
@@ -379,6 +379,111 @@ LineItemSchema.statics.find_bad_lineitems = function(opts) {
 					comment: 1,
 					description: 1,
 					product_description: 1,
+
+				}
+			}
+		]
+		LineItem.aggregate(aggregate).exec(function (err, result) {
+			if (err) {
+				console.error(err)
+				return reject(err);
+			}
+			return resolve(result);
+		})
+	})
+}
+
+LineItemSchema.statics.find_bad_license_lineitems = function (opts) {
+	console.log("Find lineitems that don't match license location");
+	return new Promise((resolve, reject) => {
+		var aggregate = [
+			{
+				$match: {
+					license_id: { $exists: true },
+					location_id: { $exists: true },
+				}
+			},
+			{
+				$lookup: {
+					from: "licenses",
+					localField: "license_id",
+					foreignField: "_id",
+					as: "license"
+				}
+			},
+			{
+				$unwind: "$license"
+			},
+			{
+				$lookup: {
+					from: "users",
+					localField: "license.user_id",
+					foreignField: "_id",
+					as: "user"
+				}
+			},
+			{
+				$unwind: "$user"
+			},
+			{
+				$lookup: {
+					from: "memberships",
+					localField: "license.membership_id",
+					foreignField: "_id",
+					as: "membership"
+				}
+			},
+			{
+				$unwind: "$membership"
+			},
+			{
+				$project: {
+					_id: 1,
+					organisation_id: 1,
+					location_id: 1,
+					license_location_id: "$license.location_id",
+					comment: 1,
+					license_user_id: "$license.user_id",
+					license_user_name: "$user.name",
+					license_user_email: "$user.email",
+					membership_location_id: "$membership.location_id",
+					membership_name: "$membership.name",
+					_deleted: 1,
+					sameloc: {
+						$cmp: ["$membership.location_id", "$license.location_id"]
+					},
+					is_deleted: {
+						$cmp: ["$$ROOT._deleted", true]
+					},
+					// membership: 1,
+					url: {
+						$concat: ["https://my.workshop17.co.za/admin/edit/organisation/", { "$toString": "$organisation_id" }]
+					}
+				}
+			},
+			{
+				$match: {
+					sameloc: { $ne: 0 },
+					is_deleted: { $ne: 0 },
+				}
+			},
+			{
+				$project: {
+					_id: 1,
+					url: 1,
+					organisation_id: 1,
+					location_id: 1,
+					license_location_id: 1,
+					comment: 1,
+					description: 1,
+					license_user_name: 1,
+					license_user_email: 1,
+					license_user_id: 1,
+					membership_name: 1,
+					membership_location_id: 1,
+					// is_deleted: 1,
+					// _deleted: 1,
+					// membership: 1
 
 				}
 			}
