@@ -91,4 +91,49 @@ SpaceSchema.post("find", async function (rows) {
 	}
 });
 
+SpaceSchema.statics.usage = function (opts) {
+	console.log("Find usage of each space");
+	const License = require("./license_model");
+	return new Promise((resolve, reject) => {
+		var aggregate = [{
+			$match: {
+				space_id: {
+					$exists: true
+				},
+				'_deleted': false
+			}
+		}, {
+			$group: {
+				_id: "$space_id",
+				count: {
+					$sum: 1
+				}
+			}
+		}, {
+			$lookup: {
+				from: 'spaces',
+				localField: '_id',
+				foreignField: '_id',
+				as: 'space'
+			}
+		}, {
+			$unwind: "$space"
+		}, {
+			$project: {
+				space_name: "$space.name",
+				space_id: "$space._id",
+				capacity: "$space.seats",
+				used: "$count"
+			}
+		}]
+		License.aggregate(aggregate).exec(function (err, result) {
+			if (err) {
+				console.error(err)
+				return reject(err);
+			}
+			return resolve(result);
+		})
+	})
+}
+
 module.exports = mongoose.model('Space', SpaceSchema);
