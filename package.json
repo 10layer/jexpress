@@ -1,6 +1,6 @@
 {
   "name": "jexpress-open",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "private": true,
   "scripts": {
     "start": "node ./bin/server.js",
@@ -10,6 +10,7 @@
   "dependencies": {
     "@google-cloud/pubsub": "^0.24.1",
     "async": "^2.6.2",
+    "axios": "^0.19.2",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "chance": "^1.0.18",
@@ -27,8 +28,6 @@
     "querystring": "^0.2.0",
     "rand-token": "0.4.0",
     "restify": "^8.1.1",
-    "restler": "^3.4.0",
-    "restler-q": "^0.1.1",
     "ws": "^6.2.0"
   },
   "devDependencies": {

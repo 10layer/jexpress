@@ -5,7 +5,7 @@ var ObjectId = mongoose.Schema.Types.ObjectId;
 var Location = require('./location_model');
 var Space = require('./space_model');
 var User = require('./user_model');
-var rest = require("restler-q");
+var axios = require("axios");
 var config = require("config");
 
 var LeadSchema   = new Schema({
@@ -70,7 +70,7 @@ LeadSchema.pre("save", async function(next) {
 			return Promise.resolve();
 		}
 		if (this["g-recaptcha-response"]) {
-			const captcha = await rest.post(config.recaptcha.url, { data: { secret: config.recaptcha.secret, response: this["g-recaptcha-response"] }});
+			const captcha = (await axios.post(config.recaptcha.url, { secret: config.recaptcha.secret, response: this["g-recaptcha-response"] })).data;
 			console.log(captcha);
 			this.spam = !captcha.success;
 			return Promise.resolve();

@@ -1,4 +1,4 @@
-var rest = require("restler-q");
+const axios = require("axios");
 var async = require("async");
 
 var count = 5000;
@@ -6,7 +6,7 @@ var queue = [];
 
 var testFunc = function(cb) {
 	// Add authentication to see a massive slow-down
-	rest.get("http://localhost:3001/api/location")
+	axios.get("http://localhost:3001/api/location")
 	.then(function(result) {
 		cb(null);
 	}, function(err) {
