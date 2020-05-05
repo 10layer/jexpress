@@ -59,6 +59,31 @@ LicenseSchema.set("_perms", {
 	user: "r"
 });
 
+const applyDiscount = (discount, row) => {
+	discount = discount || {};
+	row._doc.discount_date_start = discount.date_start || null;
+	row._doc.discount_date_end = discount.date_end || null;
+	row._doc.discount = discount.discount || 0;
+	row._doc.discount_comment = discount.comment || "";
+	return row;
+}
+
+LicenseSchema.post("findOne", async function (row) {
+	const discount = await Discount.findOne({ _deleted: false, license_id: row._id });
+	console.log({ discount });
+	applyDiscount(discount, row);
+});
+
+LicenseSchema.post("find", async function(rows, next) {
+	const discounts = await Discount.find({ _deleted: false, license_id: { $exists: true } });
+	for (let row of rows) {
+		const discount = discounts.find(discount => discount.license_id + "" === row._id + "");
+		console.log({ discount });
+		applyDiscount(discount, row);
+	}
+	next();
+})
+
 // Discounts
 LicenseSchema.pre("save", async function () {
 	const LineItem = require("./lineitem_model");
@@ -83,7 +108,7 @@ LicenseSchema.pre("save", async function () {
 		discount.date_start = this.discount_date_start;
 		discount.date_end = this.discount_date_end;
 		discount.description = description;
-		if (discount_comment)
+		if (this.discount_comment)
 			discount.comment = this.discount_comment;
 	} else {
 		// Create a new discount
