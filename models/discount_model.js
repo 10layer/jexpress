@@ -25,7 +25,7 @@ const DiscountSchema   = new Schema({
     producttype_id: { type: ObjectId, ref: "ProductType", default: null, index: true },
     lineitem_id: { type: ObjectId, ref: "LineItem" }, // If left blank, apply to entire organisation
     license_id: { type: ObjectId, ref: "License" },
-    date_start: { type: Date, default: Date.now, max: '9999-12-31', min: '1800-01-01', required: true, index: true },
+    date_start: { type: Date, default: Date.now, max: '9999-12-31', min: '1800-01-01', index: true },
     date_end: { type: Date, max: twoYearsFromNow, min: '1800-01-01', index: true },
     apply_to: [ { type: String, validate: /product|license|booking|all/ } ], // For organisation-wide discounts
 	_owner_id: { type: ObjectId, ref: "User" },
