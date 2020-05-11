@@ -59,6 +59,7 @@ LeadSchema.index( { "name": "text", "email": "text", "organisation": "text" } );
 
 LeadSchema.pre("save", async function(next) {
 	try {
+		console.log("pre-save");
 		if (!this.isNew) // Is an edit
 			return Promise.resolve();
 		if (this.__user) {
@@ -70,15 +71,23 @@ LeadSchema.pre("save", async function(next) {
 			return Promise.resolve();
 		}
 		if (this["g-recaptcha-response"]) {
-			const captcha = (await axios.post(config.recaptcha.url, { secret: config.recaptcha.secret, response: this["g-recaptcha-response"] })).data;
-			console.log(captcha);
+			const captcha_request = (await axios({
+				method: "post",
+				url: config.recaptcha.url, 
+				params: { 
+					secret: config.recaptcha.secret, 
+					response: this["g-recaptcha-response"] 
+				}
+			}));
+			const captcha = captcha_request.data;
+			console.log({ captcha });
 			this.spam = !captcha.success;
 			return Promise.resolve();
 		}
 		this.spam = true;
 		return Promise.resolve();
 	} catch(err) {
-		console.error(err);
+		console.error({ err });
 		throw(err);
 	}
 });
