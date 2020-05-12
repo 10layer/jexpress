@@ -21,7 +21,7 @@ const LineItemSchema = new Schema({
 	product_id: { type: ObjectId, ref: "Product" },
 	invoice_id: { type: ObjectId, ref: "Invoice" },
 	booking_id: { type: ObjectId, ref: "Booking" },
-	license_id: { type: ObjectId, ref: "License" },
+	license_id: { type: ObjectId, ref: "License", unique: true, sparse: true },
 	amount: {
 		type: Number,
 		validate: function(v) {
