@@ -159,6 +159,8 @@ const _calculate_row_discount = (row, org_discounts) => {
 	for (let discount of org_discounts) {
 		if (discount.lineitem_id && discount.lineitem_id + "" === row._id + "" && (discount.discount > 0)) {
 			lineitem_discounts.push(discount);
+		} else if (discount.license_id && row.license_id && discount.license_id + "" === row.license_id + "") {
+			lineitem_discounts.push(discount);
 		} else if (discount.apply_to.includes("all")) {
 			lineitem_discounts.push(discount);
 		} else if (discount.apply_to.includes("product") && row.product_id) {
@@ -170,7 +172,7 @@ const _calculate_row_discount = (row, org_discounts) => {
 		}
 	}
 	row._doc.discounts = lineitem_discounts.map(discount => discount._id);
-	row._doc.calculated_discount = lineitem_discounts.filter(discount => (!discount.date_start || now > discount.date_start) && (!discount.date_end || now < discount.date_end)).reduce((sum, b) => ( sum + b.discount ), 0);
+	row._doc.calculated_discount = lineitem_discounts.filter(discount => (!discount.date_start || now >= discount.date_start) && (!discount.date_end || now < discount.date_end)).reduce((sum, b) => ( sum + b.discount ), 0);
 	if (row._doc.calculated_discount > 100) {
 		row._doc.calculated_discount = 100;
 	}
