@@ -134,10 +134,6 @@ LicenseSchema.pre("save", async function () {
 	await discount.save();
 });
 
-LicenseSchema.post("update", async function (doc) {
-	console.log({doc});
-});
-
 /*
  * Log changes
  */
