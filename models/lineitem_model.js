@@ -131,7 +131,6 @@ LineItemSchema.pre("save", async function() {
 		discount.description = description;
 		if (this.discount_comment) 
 			discount.comment = this.discount_comment;
-		console.log(discount);
 	} else {
 		// console.log("Creating discount");
 		discount = new Discount({
@@ -159,7 +158,7 @@ const _calculate_row_discount = (row, org_discounts) => {
 	for (let discount of org_discounts) {
 		if (discount.lineitem_id && discount.lineitem_id + "" === row._id + "" && (discount.discount > 0)) {
 			lineitem_discounts.push(discount);
-		} else if (discount.license_id && row.license_id && discount.license_id + "" === row.license_id + "") {
+		} else if (discount.license_id && row.license_id && discount.license_id + "" === row.license_id._id + "") {
 			lineitem_discounts.push(discount);
 		} else if (discount.apply_to.includes("all")) {
 			lineitem_discounts.push(discount);
@@ -172,7 +171,24 @@ const _calculate_row_discount = (row, org_discounts) => {
 		}
 	}
 	row._doc.discounts = lineitem_discounts.map(discount => discount._id);
-	row._doc.calculated_discount = lineitem_discounts.filter(discount => (!discount.date_start || now >= discount.date_start) && (!discount.date_end || now < discount.date_end)).reduce((sum, b) => ( sum + b.discount ), 0);
+	// row._doc.calculated_discount = lineitem_discounts.filter(discount => (!discount.date_start || now >= discount.date_start) && (!discount.date_end || now < discount.date_end)).reduce((sum, b) => ( sum + b.discount ), 0);
+	row._doc.calculated_discount = 0;
+	row._doc.calculated_discount_date_start = null;
+	row._doc.calculated_discount_date_end = null;
+	if (lineitem_discounts.length) {
+		row._doc.calculated_discount_date_start = lineitem_discounts[0].date_start;
+		row._doc.calculated_discount_date_end = lineitem_discounts[0].date_end;
+	}
+	for (let discount of lineitem_discounts) {
+		row._doc.calculated_discount += discount.discount;
+		if (+new Date(discount.date_start) < +new Date(row._doc.calculated_discount_date_start)) {
+			row._doc.calculated_discount_date_start = discount.date_start;
+		}
+		if (+new Date(discount.date_end) > +new Date(row._doc.calculated_discount_date_end)) {
+			row._doc.calculated_discount_date_end = discount.date_end;
+		}
+		// console.log(row._doc);
+	}
 	if (row._doc.calculated_discount > 100) {
 		row._doc.calculated_discount = 100;
 	}
@@ -184,6 +200,10 @@ const _calculate_row_discount = (row, org_discounts) => {
 		row._doc.discount = line_discount.discount;
 		row._doc.discount_date_start = line_discount.date_start;
 		row._doc.discount_date_end = line_discount.date_end;
+	} else if (row._doc.calculated_discount) {
+		row._doc.discount = row._doc.calculated_discount;
+		row._doc.discount_date_start = row._doc.calculated_discount_date_start;
+		row._doc.discount_date_end = row._doc.calculated_discount_date_end;
 	}
 	return row;
 }
