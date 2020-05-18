@@ -86,10 +86,8 @@ LicenseSchema.post("find", async function(rows, next) {
 
 // Discounts
 LicenseSchema.pre("save", async function () {
-	const LineItem = require("./lineitem_model");
 	const User = require("./user_model");
 	let discount = await Discount.findOne({ license_id: this._id, _deleted: false }).exec();
-	let lineitem = await LineItem.findOne({ license_id: this._id, _deleted: false }).exec();
 	if ((!this.discount) && (discount)) {
 		// Delete existing discount and bail
 		discount._deleted = true;
@@ -127,9 +125,6 @@ LicenseSchema.pre("save", async function () {
 			description,
 			_owner_id: this.sender._id
 		});
-		if (lineitem) {
-			discount.lineitem_id = lineitem._id;
-		}
 	}
 	await discount.save();
 });

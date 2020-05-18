@@ -106,6 +106,7 @@ LineItemSchema.pre("save", async function () {
 // Discounts
 LineItemSchema.pre("save", async function() {
 	// console.log("Checking discounts");
+	if (this.license_id) return; // Let "license" handle license discounts
 	let discount = await Discount.findOne({ lineitem_id: this._id, _deleted: false }).exec();
 	if ((!this.discount) && (discount)) {
 		// Delete existing discount and bail
@@ -136,7 +137,6 @@ LineItemSchema.pre("save", async function() {
 		discount = new Discount({
 			discount: this.discount,
 			lineitem_id: this._id,
-			license_id: this.license_id,
 			organisation_id: this.organisation_id,
 			date_start: this.discount_date_start,
 			date_end: this.discount_date_end,
