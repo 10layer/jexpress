@@ -338,7 +338,8 @@ OrganisationSchema.statics.find_organisations_with_missing_addresses = function 
 			return resolve(result);
 		})
 	})
-},
+}
+
 OrganisationSchema.statics.find_organisations_with_commas_in_address = function (opts) {
 	console.log("Finding organisations with missing addresses");
 	return new Promise((resolve, reject) => {
