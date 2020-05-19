@@ -297,4 +297,92 @@ OrganisationSchema.statics.getFull = async function(opts) {
 	return { ...organisation._doc, membership, lineitems, adhoc_lineitems };
 }
 
-module.exports = mongoose.model('Organisation', OrganisationSchema);
+OrganisationSchema.statics.find_organisations_with_missing_addresses = function (opts) {
+	console.log("Finding organisations with missing addresses");
+	return new Promise((resolve, reject) => {
+		var aggregate = [
+			{
+			  '$match': {
+				'address': null, 
+				'_deleted': false,
+			  }
+			}, {
+			  '$lookup': {
+				'from': 'locations', 
+				'localField': 'location_id', 
+				'foreignField': '_id', 
+				'as': 'location'
+			  }
+			}, {
+			  '$unwind': '$location'
+			}, {
+			  '$project': {
+				'organisation_name': '$name', 
+				'organisation_location_name': '$location.name', 
+				'organisation_address': '$address', 
+				'url': {
+				  '$concat': [
+					'https://my.workshop17.co.za/admin/edit/organisation/', {
+					  '$toString': '$_id'
+					}
+				  ]
+				}
+			  }
+			}
+		  ];
+		Organisations.aggregate(aggregate).exec(function (err, result) {
+			if (err) {
+				console.error(err)
+				return reject(err);
+			}
+			return resolve(result);
+		})
+	})
+}
+
+OrganisationSchema.statics.find_organisations_with_commas_in_address = function (opts) {
+	console.log("Finding organisations with missing addresses");
+	return new Promise((resolve, reject) => {
+		var aggregate = [
+			{
+			  '$match': {
+				'_deleted': false,
+				'address': {$regex: ','},
+			  }
+			}, {
+			  '$lookup': {
+				'from': 'locations', 
+				'localField': 'location_id', 
+				'foreignField': '_id', 
+				'as': 'location'
+			  }
+			}, {
+			  '$unwind': '$location'
+			}, {
+			  '$project': {
+				'organisation_name': '$name', 
+				'organisation_location_name': '$location.name', 
+				'organisation_address': '$address', 
+				'url': {
+				  '$concat': [
+					'https://my.workshop17.co.za/admin/edit/organisation/', {
+					  '$toString': '$_id'
+					}
+				  ]
+				}
+			  }
+			}
+		  ];
+		Organisations.aggregate(aggregate).exec(function (err, result) {
+			if (err) {
+				console.error(err)
+				return reject(err);
+			}
+			return resolve(result);
+		})
+	})
+}
+
+
+const Organisations = mongoose.model('Organisation', OrganisationSchema);
+module.exports = Organisations;
