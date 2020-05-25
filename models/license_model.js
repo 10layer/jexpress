@@ -70,7 +70,6 @@ const applyDiscount = (discount, row) => {
 
 LicenseSchema.post("findOne", async function (row) {
 	const discount = await Discount.findOne({ _deleted: false, license_id: row._id });
-	console.log({ discount });
 	applyDiscount(discount, row);
 });
 
@@ -78,11 +77,16 @@ LicenseSchema.post("find", async function(rows, next) {
 	const discounts = await Discount.find({ _deleted: false, license_id: { $exists: true } });
 	for (let row of rows) {
 		const discount = discounts.find(discount => discount.license_id + "" === row._id + "");
-		console.log({ discount });
 		applyDiscount(discount, row);
 	}
 	next();
-})
+});
+
+LicenseSchema.pre("save", async function() {
+	const membership = await Membership.findOne({ _id: this.membership_id });
+	if (!membership) throw("Could not find membership");
+	if (membership.location_id + "" !== this.location_id + "") throw("Membership and license location don't match");
+});
 
 // Discounts
 LicenseSchema.pre("save", async function () {
