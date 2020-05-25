@@ -122,7 +122,6 @@ SpaceSchema.statics.usage = function (opts) {
 			$project: {
 				space_name: "$space.name",
 				space_id: "$space._id",
-				capacity: "$space.seats",
 				used: "$count"
 			}
 		}]
