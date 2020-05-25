@@ -1,4 +1,2 @@
 #!/bin/sh
-ssh -t jason@dbserver "cd /var/www/api.open.co.za/ && git checkout package-lock.json && git pull && npm i && sudo supervisorctl restart api.open.co.za"
-ssh -t jason@api-cluster-1 "cd /var/www/api.open.co.za/ && git checkout package-lock.json && git pull && npm i && sudo supervisorctl restart api.open.co.za"
-ssh -t jason@api-cluster-2 "cd /var/www/api.open.co.za/ && git checkout package-lock.json && git pull && npm i && sudo supervisorctl restart api.open.co.za"
+ssh -t jason@appserver "cd /var/www/api.workshop17.co.za/ && git checkout package-lock.json && git pull && npm i && sudo supervisorctl restart api"
