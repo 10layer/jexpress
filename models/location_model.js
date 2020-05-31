@@ -41,6 +41,10 @@ var LocationSchema = new Schema({
 	proposal_template: String,
 	proposal_addendum: String,
 	proposal_prepend: String,
+	flexi_agreement_template: String,
+	
+	: String,
+	flexi_agreement_prepend: String,
 	what3words: [ String ],
 	_deleted: { type: Boolean, default: false, index: true }
 }, {
