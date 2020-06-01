@@ -9,15 +9,7 @@ var CrmnoteSchema   = new Schema({
 	organisation_id: { type: ObjectId, index: true },
 	lead_id: { type: ObjectId, index: true },
 	id: { type: ObjectId, index: true },
-	note: {
-		type: String,
-		validate: {
-			validator: function(v) {
-			  return /^[^-\s][a-zA-Z0-9 !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{20,}$/.test(v);
-			},
-			message: props => `${props.value} does not begin with a character or is less than 20 characters"`
-		},
-	},
+	note: String,
 	date_created: { index: true, type: Date, default: Date.now },
 	tag_id: [ { type: ObjectId, ref: "Tag" }],
 	// ([\s\S]*)
