@@ -8,7 +8,7 @@ const User        = require("./user_model");
 const Organisation = require("./organisation_model");
 
 const ContractSchema   = new Schema({
-    type: { type: String, validate: /contract|proposal|flexi agreement/ },
+    type: { type: String, validate: /contract|proposal|flexi_agreement/ },
     signed: Boolean,
     sent: Boolean,
     date_signed: Date,
