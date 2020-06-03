@@ -222,4 +222,18 @@ BookingSchema.post("remove", function(transaction) { //Keep our running total up
 		deleteReserve(transaction);
 });
 
-module.exports = mongoose.model('Booking', BookingSchema);
+BookingSchema.statics.available = async (data) => {
+	const all_rooms = await Room.find({ location_id: data.location_id, _deleted: false, private: false }).populate("product_id").exec();
+	// console.log(end_time, start_time);
+	const overlapping_bookings = await Booking.find({ end_time: { $gt: data.start_time }, start_time: { $lt: data.end_time }});
+	const available_rooms = [];
+	for(let room of all_rooms) {
+		if (!overlapping_bookings.find(booking => booking.room + "" === room._id + "")) {
+			available_rooms.push(room);
+		}
+	}
+	return available_rooms;
+}
+
+const Booking = mongoose.model('Booking', BookingSchema);
+module.exports = Booking;
