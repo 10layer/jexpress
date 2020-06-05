@@ -20,7 +20,7 @@ const DeskBookingSchema = new Schema({
 DeskBookingSchema.set("_perms", {
     admin: "crud",
     owner: "crud",
-    user: "cr",
+    user: "cru",
 });
 
 module.exports = mongoose.model('DeskBooking', DeskBookingSchema);
