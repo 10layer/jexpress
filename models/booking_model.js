@@ -13,7 +13,7 @@ const Invoice = require("./invoice_model");
 const ProductType = require("./producttype_model");
 const moment = require('moment-timezone');
 
-moment.tz.setDefault("SAST");
+moment.tz.setDefault(config.timezone || "Africa/Johannesburg");
 
 const BookingSchema   = new Schema({
 	room: { type: ObjectId, ref: "Room", required: true, index: true },
@@ -117,33 +117,33 @@ const postLedger = params => {
 };
 
 // Check for conflicts
-BookingSchema.pre("save", function(next) {
-	var transaction = this;
-	//If this transaction is deleted, don't even worry
-	if (transaction._deleted)
-		return next();
-	if (new Date(transaction.start_time).getTime() > new Date(transaction.end_time).getTime()) {
-		transaction.invalidate("start_time", "start_time cannot be greater than than end_time");
-		return next(new Error("start_time greater than than end_time"));
-	}
-	transaction.user = transaction.user || transaction.__user._id;
-	if ((!transaction.__user.admin) && (String(transaction.__user._id) !== String(transaction.user))) {
-		transaction.invalidate("user", "user not allowed to assign appointment to another user");
-		return next(new Error("user not allowed to assign appointment to another user"));
-	}
-	getBookings({ end_time: { $gt: transaction.start_time }, start_time: { $lt: transaction.end_time }, room: transaction.room, _deleted: false })
-	.then(result => {
-		if (result.length && ("" + transaction._id !== "" + result[0]._id)) {
-			console.error("Booking clash", result[0]._id, transaction._id);
+BookingSchema.pre("save", async function() {
+	try {
+		var transaction = this;
+		//If this transaction is deleted, don't even worry
+		if (transaction._deleted)
+			return;
+		if (new Date(transaction.start_time).getTime() > new Date(transaction.end_time).getTime()) {
+			transaction.invalidate("start_time", "start_time cannot be greater than than end_time");
+			throw("start_time greater than than end_time");
+		}
+		console.log(transaction);
+		transaction.user = transaction.user || transaction.__user._id;
+		if ((!transaction.__user.admin) && (String(transaction.__user._id) !== String(transaction.user))) {
+			transaction.invalidate("user", "user not allowed to assign appointment to another user");
+			throw("user not allowed to assign appointment to another user");
+		}
+		const bookings = (await getBookings({ end_time: { $gt: transaction.start_time }, start_time: { $lt: transaction.end_time }, room: transaction.room, _deleted: false })).filter(booking_id => booking_id + "" !== transaction._id + "");
+		if (!bookings.length) return;
+		const room = await Room.findOne(transaction.room).exec();
+		if (bookings.length >= room.number_available) {
+			console.error("Booking clash", { bookings, transaction });
 			throw("This booking clashes with an existing booking");
 		}
-	})
-	.then(result => {
-		next();
-	})
-	.catch(err => {
-		return next(new Error(err));
-	});
+	} catch(err) {
+		console.error(err);
+		return Promise.reject(err);
+	}
 });
 
 // Save in ledger
@@ -168,7 +168,7 @@ BookingSchema.pre("save", async function(f, item) {
 		const room = await getRoom({ _id: transaction.room });
 		//Reserve the moneyz
 		//We do this here, because if it fails we don't want to process the payment.
-		var description = "Booking: " + transaction.title + " :: " + room.name +  ", " + moment(transaction.start_time).tz(config.timezone || "Africa/Johannesburg").format("dddd MMMM Do, H:mm") + " to " + moment(transaction.end_time).tz(config.timezone || "Africa/Johannesburg").format("H:mm");
+		var description = "Booking: " + transaction.title + " :: " + room.name + ", " + moment(transaction.start_time).format("dddd MMMM Do, H:mm") + " to " + moment(transaction.end_time).format("dddd MMMM Do, H:mm");
 		if (parseInt(transaction._owner_id) !== parseInt(transaction.user)) {
 			description += " (Booked by Reception)";
 		}
@@ -191,7 +191,7 @@ BookingSchema.pre("save", async function(f, item) {
 });
 
 var deleteReserve = function(transaction) {
-	console.log("Remove called, Going to remove reserve");
+	// console.log("Remove called, Going to remove reserve");
 	var item = null;
 	Ledger.findOne({
 		source_type: "booking",
@@ -200,10 +200,10 @@ var deleteReserve = function(transaction) {
 	.then(result => {
 		item = result;
 		if (!item) {
-			console.log("Could not find Reserve");
+			console.error("Could not find Reserve", transaction);
 			return new Error("Could not find Reserve");
 		}
-		console.log("Deleting", item);
+		// console.log("Deleting", item);
 		item.remove();
 	})
 	.catch(err => {

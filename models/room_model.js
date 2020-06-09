@@ -35,6 +35,7 @@ const RoomSchema = new Schema({
 	aesthetic_impact: Number,
 	safety_margin: Number,
 	price_per_room: Number,
+	number_available: { type: Number, default: 1 },
 	_deleted: { type: Boolean, default: false, index: true },
 	_owner_id: ObjectId,
 }, {
