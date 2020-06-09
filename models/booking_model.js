@@ -1,20 +1,21 @@
-var mongoose     = require('mongoose');
-var Schema       = mongoose.Schema;
+const mongoose     = require('mongoose');
+const Schema       = mongoose.Schema;
 const config	= require("config");
 
-var ObjectId = mongoose.Schema.Types.ObjectId;
-var Room = require("./room_model");
-var User = require("./user_model");
-var Guest = require("./guest_model");
-var Reserve = require("./reserve_model");
-var Ledger = require("./ledger_model");
-var Layout = require("./layout_model");
-var Invoice = require("./invoice_model");
-var moment = require('moment-timezone');
+const ObjectId = mongoose.Schema.Types.ObjectId;
+const Room = require("./room_model");
+const User = require("./user_model");
+const Guest = require("./guest_model");
+const Reserve = require("./reserve_model");
+const Ledger = require("./ledger_model");
+const Layout = require("./layout_model");
+const Invoice = require("./invoice_model");
+const ProductType = require("./producttype_model");
+const moment = require('moment-timezone');
 
 moment.tz.setDefault("SAST");
 
-var BookingSchema   = new Schema({
+const BookingSchema   = new Schema({
 	room: { type: ObjectId, ref: "Room", required: true, index: true },
 	start_time: { type: Date, required: true, index: true },
 	end_time: { type: Date, required: true, index: true },
@@ -224,7 +225,6 @@ BookingSchema.post("remove", function(transaction) { //Keep our running total up
 
 BookingSchema.statics.available = async (data) => {
 	const all_rooms = await Room.find({ location_id: data.location_id, _deleted: false, private: false }).populate("product_id").exec();
-	// console.log(end_time, start_time);
 	const overlapping_bookings = await Booking.find({ end_time: { $gt: data.start_time }, start_time: { $lt: data.end_time }});
 	const available_rooms = [];
 	for(let room of all_rooms) {
