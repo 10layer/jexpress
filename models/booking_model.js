@@ -12,6 +12,7 @@ const Layout = require("./layout_model");
 const Invoice = require("./invoice_model");
 const ProductType = require("./producttype_model");
 const moment = require('moment-timezone');
+const CostCalculator = require("../libs/costcalculator");
 
 moment.tz.setDefault(config.timezone || "Africa/Johannesburg");
 
@@ -223,12 +224,27 @@ BookingSchema.post("remove", function(transaction) { //Keep our running total up
 		deleteReserve(transaction);
 });
 
+const calculate_cost = async function(room, start_time, end_time) {
+	try {
+		const cost = await CostCalculator(room, start_time, end_time);
+		return cost;
+	} catch(err) {
+		console.error(err);
+		return null;
+	}
+}
+
 BookingSchema.statics.available = async (data) => {
 	const all_rooms = await Room.find({ location_id: data.location_id, _deleted: false, private: false }).populate("product_id").exec();
 	const overlapping_bookings = await Booking.find({ end_time: { $gt: data.start_time }, start_time: { $lt: data.end_time }});
 	const available_rooms = [];
-	for(let room of all_rooms) {
-		if (!overlapping_bookings.find(booking => booking.room + "" === room._id + "")) {
+	for(let room of all_rooms.slice(1)) {
+		if (overlapping_bookings.filter(booking => booking.room + "" === room._id + "").length < room.number_available) {
+			try {
+				room._doc.total_cost = await calculate_cost(room._id, data.start_time, data.end_time);
+			} catch(err) {
+				console.log("Could not get cost for room", room._id);
+			}
 			available_rooms.push(room);
 		}
 	}

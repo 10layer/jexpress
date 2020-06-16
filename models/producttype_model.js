@@ -1,7 +1,8 @@
 const mongoose     = require('mongoose');
 const Schema       = mongoose.Schema;
-const Objectid = mongoose.Schema.Types.ObjectId;
+const ObjectId = mongoose.Schema.Types.ObjectId;
 const friendly = require("mongoose-friendly");
+const Membership = require("./membership_model");
 
 const ProductTypeSchema   = new Schema({
 	name: { type: String, required: true, index: true },
@@ -11,8 +12,17 @@ const ProductTypeSchema   = new Schema({
 	bookable: { type: Boolean, default: false },
 	bookable_noun: String,
 	bookable_time_units: String,
+	bookable_start: Number,
+	bookable_end: Number,
+	bookable_prime_start: Number,
+	bookable_prime_end: Number,
+	bookable_discounts: [{
+		name: String,
+		membership_types: [{ type: ObjectId, ref: "Membership" }],
+		slot: Number
+	}],
 	img: String,
-	_owner_id: Objectid,
+	_owner_id: ObjectId,
 	_deleted: { type: Boolean, default: false, index: true },
 }, {
 	timestamps: true
