@@ -15,6 +15,7 @@ const messagequeue = require("../libs/messagequeue");
 const Organisation = require('./organisation_model');
 const IndustrySector = require("./industrysector_model");
 const Lineitem = require("./lineitem_model");
+const License = require("./license_model");
 const Adhoc = require("./adhoc_model");
 
 const OrganisationSchema   = new Schema({
@@ -286,10 +287,12 @@ OrganisationSchema.statics.getFull = async function(opts) {
 		}
 	}
 	let membership = null;
-	if (organisation.user_id && organisation.user_id.membership_id) {
-		membership = await Membership.findById(organisation.user_id.membership_id);
+	if (organisation.user_id) {
+		const license = await License.findOne({ user_id: organisation.user_id });
+		if (license) {
+			membership = await Membership.findById(license.membership_id);
+		}
 	}
-	// console.log({ organisation_id: _id, _deleted: false });
 	const lineitems = sortLineitems((await Lineitem.find({ organisation_id: _id, _deleted: false })
 		.populate({ path: "license_id", populate: { path: "membership_id" } }).populate("product_id")).map(process_lineitem));
 	const adhoc_lineitems = sortLineitems((await Adhoc.find({ organisation_id: _id, _deleted: false })
