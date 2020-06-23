@@ -17,16 +17,16 @@ const CostCalculator = require("../libs/costcalculator");
 moment.tz.setDefault(config.timezone || "Africa/Johannesburg");
 
 const BookingSchema   = new Schema({
-	room: { type: ObjectId, ref: "Room", required: true, index: true },
+	room_id: { type: ObjectId, ref: "Room", required: true, index: true },
 	start_time: { type: Date, required: true, index: true },
 	end_time: { type: Date, required: true, index: true },
 	title: { type: String, required: true },
 	description: String,
 	message: String,
-	attendees: [{ type: ObjectId, ref: "User" }],
-	guests: [{ type: ObjectId, ref: "Guest" }],
+	attendee_id: [{ type: ObjectId, ref: "User" }],
+	guest_id: [{ type: ObjectId, ref: "Guest" }],
 	external_attendees: [String],
-	user: { type: ObjectId, ref: "User" },
+	user_id: { type: ObjectId, ref: "User" },
 	cost: Number,
 	created: { type: Date, default: Date.now },
 	public_event: { type: Boolean, default: false },
@@ -34,12 +34,12 @@ const BookingSchema   = new Schema({
 	internal_event: { type: Boolean, default: false },
 	event_client: { type: Boolean, default: false },
 	img: String,
-	layout: { type: ObjectId, ref: "Layout" },
+	layout_id: { type: ObjectId, ref: "Layout" },
 	booking_url: String,
 	website: String,
 	radius_username: String,
 	radius_password: String,
-	invoice: { type: Boolean, default: false},
+	is_invoice: { type: Boolean, default: false},
 	invoice_id: { type: ObjectId, ref: "Invoice" },
 	external_id: String,
 	hidden: { type: Boolean, default: false },
@@ -57,23 +57,6 @@ BookingSchema.set("_perms", {
 	owner: "crud",
 	user: "cr",
 });
-
-function collision_detection(appointment, appointments) {
-	if (!appointments) {
-		return false;
-	}
-	var appointment_index = appointments.indexOf(appointment);
-	for(var x = 0; x < appointments.length; x++) {
-		if (x != appointment_index) {
-			if (appointment.start_time < appointments[x].end_time && appointments[x].start_time < appointment.end_time) {
-				console.error("Collision", appointments[x].start_time, appointments[x].end_time);
-				console.log("Appointment", appointment.start_time, appointment.end_time);
-				return true;
-			}
-		}
-	}
-	return false;
-}
 
 const getBookings = params => {
 	var Booking = mongoose.model("Booking", BookingSchema);
@@ -128,15 +111,14 @@ BookingSchema.pre("save", async function() {
 			transaction.invalidate("start_time", "start_time cannot be greater than than end_time");
 			throw("start_time greater than than end_time");
 		}
-		console.log(transaction);
-		transaction.user = transaction.user || transaction.__user._id;
-		if ((!transaction.__user.admin) && (String(transaction.__user._id) !== String(transaction.user))) {
-			transaction.invalidate("user", "user not allowed to assign appointment to another user");
+		transaction.user_id = transaction.user_id || transaction.__user._id;
+		if ((!transaction.__user.admin) && (String(transaction.__user._id) !== String(transaction.user_id))) {
+			transaction.invalidate("user_id", "user not allowed to assign appointment to another user");
 			throw("user not allowed to assign appointment to another user");
 		}
-		const bookings = (await getBookings({ end_time: { $gt: transaction.start_time }, start_time: { $lt: transaction.end_time }, room: transaction.room, _deleted: false })).filter(booking_id => booking_id + "" !== transaction._id + "");
+		const bookings = (await getBookings({ end_time: { $gt: transaction.start_time }, start_time: { $lt: transaction.end_time }, room_id: transaction.room_id, _deleted: false })).filter(booking_id => booking_id + "" !== transaction._id + "");
 		if (!bookings.length) return;
-		const room = await Room.findOne(transaction.room).exec();
+		const room = await Room.findOne(transaction.room_id).exec();
 		if (bookings.length >= room.number_available) {
 			console.error("Booking clash", { bookings, transaction });
 			throw("This booking clashes with an existing booking");
@@ -166,16 +148,16 @@ BookingSchema.pre("save", async function(f, item) {
 		if (ledger) {
 			await ledger.remove();
 		}
-		const room = await getRoom({ _id: transaction.room });
+		const room = await getRoom({ _id: transaction.room_id });
 		//Reserve the moneyz
 		//We do this here, because if it fails we don't want to process the payment.
 		var description = "Booking: " + transaction.title + " :: " + room.name + ", " + moment(transaction.start_time).format("dddd MMMM Do, H:mm") + " to " + moment(transaction.end_time).format("dddd MMMM Do, H:mm");
-		if (parseInt(transaction._owner_id) !== parseInt(transaction.user)) {
+		if (parseInt(transaction._owner_id) !== parseInt(transaction.user_id)) {
 			description += " (Booked by Reception)";
 		}
 		reserve_expires = moment(transaction.start_time).subtract(24, "hours");
-		const newledger = await postLedger({
-			user_id: transaction.user,
+		await postLedger({
+			user_id: transaction.user_id,
 			description: description,
 			partner_reference: transaction._id,
 			amount: Math.abs(transaction.cost) * -1, // Ensure negative value
@@ -239,7 +221,7 @@ BookingSchema.statics.available = async (data) => {
 	const overlapping_bookings = await Booking.find({ end_time: { $gt: data.start_time }, start_time: { $lt: data.end_time }});
 	const available_rooms = [];
 	for(let room of all_rooms.slice(1)) {
-		if (overlapping_bookings.filter(booking => booking.room + "" === room._id + "").length < room.number_available) {
+		if (overlapping_bookings.filter(booking => booking.room_id + "" === room._id + "").length < room.number_available) {
 			try {
 				room._doc.total_cost = await calculate_cost(room._id, data.start_time, data.end_time);
 			} catch(err) {
