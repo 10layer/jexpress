@@ -116,7 +116,7 @@ BookingSchema.pre("save", async function() {
 			transaction.invalidate("user_id", "user not allowed to assign appointment to another user");
 			throw("user not allowed to assign appointment to another user");
 		}
-		const bookings = (await getBookings({ end_time: { $gt: transaction.start_time }, start_time: { $lt: transaction.end_time }, room_id: transaction.room_id, _deleted: false })).filter(booking_id => booking_id + "" !== transaction._id + "");
+		const bookings = (await getBookings({ end_time: { $gt: transaction.start_time }, start_time: { $lt: transaction.end_time }, room_id: transaction.room_id, _deleted: false })).filter(booking => booking._id + "" !== transaction._id + "");
 		if (!bookings.length) return;
 		const room = await Room.findOne(transaction.room_id).exec();
 		if (bookings.length >= room.number_available) {
