@@ -291,6 +291,8 @@ OrganisationSchema.statics.getFull = async function(opts) {
 		const license = await License.findOne({ user_id: organisation.user_id });
 		if (license) {
 			membership = await Membership.findById(license.membership_id);
+		} else if (organisation.user_id.membership_id) {
+			membership = await Membership.findById(organisation.user_id.membership_id);
 		}
 	}
 	const lineitems = sortLineitems((await Lineitem.find({ organisation_id: _id, _deleted: false })
