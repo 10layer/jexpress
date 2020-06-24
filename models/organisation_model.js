@@ -281,6 +281,7 @@ OrganisationSchema.statics.getFull = async function(opts) {
 	// console.log(opts);
 	const Organisation = mongoose.model('Organisation', OrganisationSchema);
 	const organisation = await Organisation.findById(_id).populate("user_id").populate("location_id");
+	if (!organisation) return Promise.reject("Organisation not found");
 	if (!opts.__user || !opts.__user.admin) {
 		if (organisation.user_id._id + "" !== opts.__user._id + "") {
 			return Promise.reject("Admins and owners only");
