@@ -69,7 +69,7 @@ const applyDiscount = (discount, row) => {
 }
 
 LicenseSchema.post("findOne", async function (row) {
-	if (!row._id) return;
+	if (!row || !row._id) return;
 	const discount = await Discount.findOne({ _deleted: false, license_id: row._id });
 	applyDiscount(discount, row);
 });
