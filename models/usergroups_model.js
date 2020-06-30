@@ -4,7 +4,7 @@ var Schema       = mongoose.Schema;
 var ObjectId = mongoose.Schema.Types.ObjectId;
 
 var UserGroupSchema   = new Schema({
-	user_id: { type: ObjectId, index: true, unique: true },
+	user_id: { type: ObjectId, ref: "User", index: true, unique: true },
 	groups: [String],
 	_date: { type: Date, default: Date.now },
 }, {
