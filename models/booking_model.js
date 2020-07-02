@@ -26,7 +26,7 @@ const BookingSchema   = new Schema({
 	attendee_id: [{ type: ObjectId, ref: "User" }],
 	guest_id: [{ type: ObjectId, ref: "Guest" }],
 	external_attendees: [String],
-	user_id: { type: ObjectId, ref: "User" },
+	user: { type: ObjectId, ref: "User" },
 	cost: Number,
 	created: { type: Date, default: Date.now },
 	public_event: { type: Boolean, default: false },
@@ -111,9 +111,9 @@ BookingSchema.pre("save", async function() {
 			transaction.invalidate("start_time", "start_time cannot be greater than than end_time");
 			throw("start_time greater than than end_time");
 		}
-		transaction.user_id = transaction.user_id || transaction.__user._id;
-		if ((!transaction.__user.admin) && (String(transaction.__user._id) !== String(transaction.user_id))) {
-			transaction.invalidate("user_id", "user not allowed to assign appointment to another user");
+		transaction.user = transaction.user || transaction.__user._id;
+		if ((!transaction.__user.admin) && (String(transaction.__user._id) !== String(transaction.user))) {
+			transaction.invalidate("user", "user not allowed to assign appointment to another user");
 			throw("user not allowed to assign appointment to another user");
 		}
 		const bookings = (await getBookings({ end_time: { $gt: transaction.start_time }, start_time: { $lt: transaction.end_time }, room_id: transaction.room_id, _deleted: false })).filter(booking => booking._id + "" !== transaction._id + "");
@@ -152,12 +152,12 @@ BookingSchema.pre("save", async function(f, item) {
 		//Reserve the moneyz
 		//We do this here, because if it fails we don't want to process the payment.
 		var description = "Booking: " + transaction.title + " :: " + room.name + ", " + moment(transaction.start_time).format("dddd MMMM Do, H:mm") + " to " + moment(transaction.end_time).format("dddd MMMM Do, H:mm");
-		if (parseInt(transaction._owner_id) !== parseInt(transaction.user_id)) {
+		if (parseInt(transaction._owner_id) !== parseInt(transaction.user)) {
 			description += " (Booked by Reception)";
 		}
 		reserve_expires = moment(transaction.start_time).subtract(24, "hours");
 		await postLedger({
-			user_id: transaction.user_id,
+			user_id: transaction.user,
 			description: description,
 			partner_reference: transaction._id,
 			amount: Math.abs(transaction.cost) * -1, // Ensure negative value
