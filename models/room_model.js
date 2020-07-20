@@ -13,7 +13,7 @@ const RoomSchema = new Schema({
 	urlid: { type: String, unique: true, index: true },
 	location_id: { type: ObjectId, ref: "Location", index: true },
 	product_id: { type: ObjectId, ref: "Product" },
-	type: [{ type: String, validate: /meeting|event|office|other|hot_desk|dedicated_desk/, index: true } ],
+	type: [{ type: String, validate: /meeting|event|office|other|hot_desk|Lobby|circulation|create|vc|dedicated_desk/, index: true } ],
 	name: String,
 	img: String,
 	description: String,
