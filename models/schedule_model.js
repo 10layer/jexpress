@@ -13,7 +13,7 @@ var ScheduleSchema   = new Schema({
 	status: { type: String, validate: /due|running|run|cancelled|failed/, index: true, default: "due" },
 	last_run: Date,
 	last_output: mongoose.Schema.Types.Mixed,
-	repeat:  { type: String, validate: /never|minutely|hourly|daily|monthly/, index: true, default: "never" },
+	repeat:  { type: String, validate: /never|minutely|hourly|daily|weekly|monthly/, index: true, default: "never" },
 	created: { type: Date, default: Date.now },
 }, {
 	timestamps: true
